@@ -1,0 +1,85 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <!--<item name="android:textColorSecondary">#007DC0</item>-->
+    </style>
+
+    <style name="RatingBarStyle" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/ratingstars</item>
+        <item name="android:minHeight">22dip</item>
+        <item name="android:maxHeight">22dip</item>
+        <!--<item name="android:textColorSecondary">#00C77C</item>-->
+    </style>
+
+
+    <style name="FirebaseUI.Text.TextInputLayout">
+        <item name="android:paddingTop">8dp</item>
+        <item name="colorAccent">@color/authui_colorPrimary</item>
+        <item name="colorControlNormal">@color/textInputLabelColor</item>
+        <item name="colorControlActivated">@color/textInputLabelColor</item>
+    </style>
+
+    <style name="FirebaseUI.Text.HintText" parent="FirebaseUI.Text.T12">
+        <item name="android:textColor">@color/textInputLabelColor</item>
+    </style>
+
+    <style name="FirebaseUI.Text.ErrorText" parent="FirebaseUI.Text.T12">
+        <item name="android:textColor">@color/errorColor</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+
+
+    <style name="ColoredFirebaseUI" parent="FirebaseUI">
+        <item name="colorPrimary">#1a3855</item>
+        <item name="colorPrimaryDark">#1a3855</item>
+        <item name="colorAccent">#1a3855</item>
+        <item name="colorControlNormal">#1a3855</item>
+        <item name="colorControlActivated">#1a3855</item>
+        <item name="colorControlHighlight">#1a3855</item>
+        <item name="android:windowBackground">@drawable/gradient_1</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="colorAccent">#ffffff</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="TextLabel" parent="TextAppearance.AppCompat">
+        <!-- Hint color and label color in FALSE state -->
+        <item name="android:textColorHint">@color/cargar_blue</item>
+        <item name="android:textSize">16sp</item>
+        <!-- Label color in TRUE state and bar color FALSE and TRUE State -->
+        <item name="colorAccent">@color/cargar_blue</item>
+        <item name="colorControlNormal">@color/cargar_blue</item>
+        <item name="colorControlActivated">@color/sunshine</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Sign_Up_Activity_Style" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorAccent">@color/sunshine</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimaryDark">@color/cargar_blue</item>
+    </style>
+
+    <style name="MyAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!-- Used for the buttons -->
+        <item name="colorAccent">#FFFFFF</item>
+        <!-- Used for the title and text -->
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <!-- Used for the background -->
+        <item name="android:background">@color/sunshine</item>
+    </style>
+
+</resources>

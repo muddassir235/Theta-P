@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#426E86</color>
+    <color name="colorPrimaryDark">#294453</color>
+    <color name="colorAccent">#F9BA32</color>
+    <color name="sunshine">#F9BA32</color>
+    <color name="sunshine_dark">#d89606</color>
+    <color name="coal">#2F3131</color>
+    <color name="cargar_blue">#426E86</color>
+    <color name="cargar_blue_dark">#294453</color>
+    <color name="cargar_blue_light">#7a99aa</color>
+    <color name="facebook">#758ab6</color>
+    <color name="google">#ec5549</color>
+    <color name="dark_blue">#1a3855</color>
+    <color name="correct_green">#00E676</color>
+</resources>

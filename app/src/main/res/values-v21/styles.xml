@@ -1,0 +1,47 @@
+<resources>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <!--<item name="android:textColorHint">#97cbc6</item>-->
+    </style>
+
+    <style name="Sign_Up_Activity_Style" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:colorAccent">@color/sunshine</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:statusBarColor">@color/cargar_blue</item>
+        <item name="android:colorPrimaryDark">@color/cargar_blue</item>
+    </style>
+
+    <style name="Sign_In_Activity_Style" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:colorAccent">@color/sunshine</item>
+        <item name="android:statusBarColor">#0d161a</item>
+        <item name="android:colorPrimaryDark">#0d161a</item>
+        <item name="android:navigationBarColor">#000000</item>
+        <item name="android:color">#FFFFFF</item>
+    </style>
+
+    <style name="RatingBarStyle" parent="@android:style/Widget.Material.RatingBar">
+        <item name="android:progressDrawable">@drawable/ratingstars</item>
+        <item name="android:minHeight">22dip</item>
+        <item name="android:maxHeight">22dip</item>
+        <!--<item name="android:textColorSecondary">#00C77C</item>-->
+    </style>
+
+    <style name="ColoredFirebaseUI" parent="FirebaseUI">
+        <item name="colorPrimary">#1a3855</item>
+        <item name="colorPrimaryDark">#1a3855</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorControlNormal">#1a3855</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
+        <item name="colorControlHighlight">@color/colorAccent</item>
+        <item name="android:windowBackground">@drawable/gradient_1</item>
+    </style>
+
+</resources>

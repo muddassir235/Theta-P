@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/faisal_mosque"
+    android:id="@+id/root_layout"
+    >
+
+    <eightbitlab.com.blurview.BlurView
+        android:id="@+id/blurView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:blurOverlayColor="#553A2D73">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/gradient_2"
+            android:alpha="0.7"
+            />
+    </eightbitlab.com.blurview.BlurView>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center|bottom">
+
+        <LinearLayout
+            android:gravity="center"
+            android:layout_weight="1.0"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/logo"
+                style="@style/FirebaseUI.AuthMethodPicker.Logo"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_holder"
+            android:layout_weight="0"
+            style="@style/FirebaseUI.AuthMethodPicker.ButtonHolder">
+
+            <RelativeLayout
+                android:id="@+id/email_provider"
+                android:layout_width="match_parent"
+                style="@style/FirebaseUI.Button.AccountChooser.EmailButton"
+                android:padding="0dp"
+                android:layout_margin="0dp"
+                android:gravity="center"
+                android:elevation="100dp"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/email_option_button"
+                    android:layout_width="220dp"
+                    android:layout_height="wrap_content"
+                    android:text="Email Sign In"
+                    android:background="#00FFFFFF"
+                    android:paddingRight="28dp"
+                    android:paddingLeft="5dp"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:drawableLeft="@drawable/email_icon"
+                    android:layout_centerInParent="true"/>
+            </RelativeLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</RelativeLayout>

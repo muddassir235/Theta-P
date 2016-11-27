@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Cargar</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_sign_in">SignInActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_sign_up">SignUpActivity</string>
+    <string name="alert_activity_label">Alert</string>
+    <string name="title_activity_cab_tracker">Map</string>
+    <string name="facebook_application_id">1738592456358296</string>
+    <string name="title_activity_transition">TransitionActivity</string>
+    <string name="title_activity_fire_base_entry">FireBaseEntry</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="serviceDesc">Send location updates to server</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="pkr">PKR.</string>
+    <string name="fair_string">Your fair is</string>
+    <string name="action_sign_up_short">Sign Up</string>
+    <string name="action_okay_short">okay</string>
+    <string name="prompt_phone">Enter Cell Phone Number</string>
+    <string name="prompt_address">Enter Complete Address</string>
+    <string name="action_data_entry_short">data entry</string>
+    <string name="prompt_landmark">Enter nearest Landmark</string>
+    <string name="title_activity_user_data_entry">Data Entry</string>
+    <string name="prompt_cnic">Enter CNIC (without dashes)</string>
+    <string name="prompt_reference">Enter Reference\'s Name</string>
+    <string name="prompt_reference_phone">Enter Reference\'s Phone Number</string>
+    <string name="prompt_city">Enter your city</string>
+    <string name="prompt_home_address">Enter complete address</string>
+    <string name="prompt_liscence_number">Enter your driving liscence number</string>
+    <string name="prompt_liscence_plate_number">Enter your bike\'s liscence plate number</string>
+    <string name="title_activity_photo_upload">PhotoUploadActivity</string>
+    <string name="add_profile_picture">ADD PROFILE PICTURE</string>
+    <string name="profile_photo">Profile Photo</string>
+    <string name="bike_image">Bike Image</string>
+    <string name="no_image_selected">No Image Selected</string>
+    <string name="title_activity_edit_profile">EditProfileActivity</string>
+    <string name="prompt_help_number">Enter Help Number</string>
+</resources>

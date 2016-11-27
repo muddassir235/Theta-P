@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+
+    <path
+        android:fillColor="#231F20"
+        android:fillAlpha="0.2"
+        android:strokeAlpha="0.2"
+        android:strokeWidth="1"
+        android:pathData="M52,44 C52,46.209,50.209,48,48,48 L16,48 C13.791,48,12,46.209,12,44 L12,24
+C12,21.791,13.791,20,16,20 L48,20 C50.209,20,52,21.791,52,24 L52,44 Z" />
+    <path
+        android:fillColor="#E0E0D1"
+        android:pathData="M52,42 C52,44.209,50.209,46,48,46 L16,46 C13.791,46,12,44.209,12,42 L12,22
+C12,19.791,13.791,18,16,18 L48,18 C50.209,18,52,19.791,52,22 L52,42 Z" />
+    <path
+        android:fillColor="#231F20"
+        android:fillAlpha="0.2"
+        android:strokeAlpha="0.2"
+        android:strokeWidth="1"
+        android:pathData="M35.524,30.185 C33.586,28.039,30.415,28.039,28.477,30.185 L13.05,43.228
+C12.87,43.427,12.722,43.621,12.589,43.813 C13.29,45.119,14.549,46,16,46 L48,46
+C49.451,46,50.71,45.119,51.411,43.813 C51.278,43.622,51.13,43.428,50.95,43.228
+L35.524,30.185 Z" />
+    <path
+        android:fillColor="#E0E0D1"
+        android:pathData="M35.524,32 C33.586,30.1,30.415,30.1,28.477,32 L13.05,43.546
+C12.87,43.722,12.722,43.894,12.589,44.063 C13.29,45.22,14.549,46,16,46 L48,46
+C49.451,46,50.71,45.22,51.411,44.064 C51.278,43.895,51.13,43.723,50.95,43.547
+L35.524,32 Z" />
+    <path
+        android:fillColor="#231F20"
+        android:fillAlpha="0.2"
+        android:strokeAlpha="0.2"
+        android:strokeWidth="1"
+        android:pathData="M12.589,20.187 C13.29,18.881,14.549,18,16,18 L48,18
+C49.451,18,50.71,18.881,51.411,20.187 C51.278,20.378,51.13,20.572,50.95,20.772
+L35.524,33.815 C33.586,35.961,30.415,35.961,28.477,33.815 L12.589,20.187 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M28.476,32 C30.414,33.9,33.585,33.9,35.523,32 L50.95,20.454
+C51.13,20.278,51.278,20.106,51.411,19.937 C50.71,18.78,49.451,18,48,18 L16,18
+C14.549,18,13.29,18.78,12.589,19.936 C12.722,20.105,12.87,20.277,13.05,20.453
+L28.476,32 Z" />
+</vector>

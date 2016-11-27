@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/FirebaseUI.WrapperStyle"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_1"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/tick_icon"/>
+    <TextView
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/welcome_back_idp_header"
+        style="@style/FirebaseUI.Text.Heading" />
+
+    <TextView
+        style="@style/FirebaseUI.Text.BodyText"
+        android:id="@+id/welcome_back_idp_prompt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#EEFFFFFF"
+        tools:text="Good news! You've already used jane.doe@example.com. Sign in with Google to continue to SuperApp"
+         />
+
+    <Button
+        android:id="@+id/welcome_back_idp_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:textColor="@color/authui_colorAccent"
+        android:text="@string/sign_in" />
+
+</LinearLayout>

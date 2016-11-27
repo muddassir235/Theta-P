@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="authui_colorPrimary">#1a3855</color>
+    <color name="authui_colorPrimaryDark">#294453</color>
+    <color name="authui_colorAccent">#F9BA32</color>
+    <color name="authui_colorActivated">#F9BA32</color>
+
+    <color name="headingColor">#F9BA32</color>
+    <color name="bodyTextColor">@color/authui_colorPrimary</color>
+    <color name="errorColor">#FC6A6A</color>
+    <color name="linkColor">#4285F4</color>
+    <color name="buttonColor">#585a5a</color>
+    <color name="buttonColorPressed">@color/authui_colorActivated</color>
+    <color name="buttonTextColor">#FFFFFF</color>
+    <color name="inputLabelColor">#F9BA32</color>
+    <color name="shadowColor">#eeeeee</color>
+    <color name="textInputLabelColor">#E6F5E9</color>
+    <color name="textHintColor">#d5d5d5</color>
+    <color name="coal_color">#2F3131</color>
+    <color name="auth_choice_email_button_back_color">#e0a72d</color>
+
+
+    <color name="color_gradient_top">#1a3855</color>
+    <color name="color_gradient_middle">#2B414F</color>
+    <color name="color_gradient_bottom">#1a3855</color>
+
+    <color name="button_color">#1a3855</color>
+
+    <color name="facebook_blue">#3a5795</color>
+</resources>

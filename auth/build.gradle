@@ -1,0 +1,61 @@
+apply plugin: 'com.android.library'
+apply plugin: 'checkstyle'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "24.0.0"
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+        renderscriptTargetApi 24
+        renderscriptSupportModeEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    testOptions {
+        unitTests.all {
+            testLogging {
+                exceptionFormat = 'full'
+            }
+        }
+    }
+}
+
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.10.19'
+    testCompile "org.robolectric:robolectric:3.1.1"
+    compile "com.android.support:appcompat-v7:24.2.0"
+    compile 'com.facebook.android:facebook-android-sdk:4.14.1'
+    compile 'com.github.mirrajabi:ViewEffects:1.0'
+    compile "com.android.support:design:24.2.0"
+
+    compile "com.google.firebase:firebase-auth:9.4.0"
+    compile "com.google.android.gms:play-services-auth:9.4.0"
+    compile 'com.github.mmin18:realtimeblurview:1.0.4'
+    compile 'com.eightbitlab:blurview:1.2.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha9'
+}
+
+checkstyle {
+    configFile file('../common/checkstyle/checkstyle.xml')
+    configProperties = ['checkstyle.java.header': file('../common/checkstyle/java.header').getAbsolutePath()]
+    toolVersion = "6.11.2"
+}
+
+task checkAllSource(type: Checkstyle) {
+    source 'src/main/java'
+    include '**/*.java'
+    classpath = files(project.configurations.compile)
+}
+
+

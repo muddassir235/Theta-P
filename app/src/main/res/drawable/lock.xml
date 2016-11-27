@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="@color/cargar_blue_light"
+        android:pathData="M20.002,24.001 L4.014,24.001 C2.91,24.001,2.016,23.105,2.016,22 L2.016,11.994
+C2.016,10.889,2.911,9.992,4.014,9.992 L5.013,9.992 L5.013,6.991
+C5.013,3.123,8.145,-0.013,12.008,-0.013 S19.003,3.123,19.003,6.991 L19.003,9.992
+L20.002,9.992 C21.106,9.992,22,10.888,22,11.994 L22,22
+C22,23.104,21.105,24.001,20.002,24.001 Z M16.005,6.991
+C16.005,4.781,14.215,2.989,12.008,2.989 S8.011,4.781,8.011,6.991 L8.011,9.992
+L16.005,9.992 L16.005,6.991 Z" />
+</vector>

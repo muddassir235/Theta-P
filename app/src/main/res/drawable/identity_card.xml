@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="@color/cargar_blue_light"
+        android:pathData="M20,20 L4,20 C2.346,20,1,18.654,1,17 L1,7 C1,5.346,2.346,4,4,4 L20,4
+C21.654,4,23,5.346,23,7 L23,17 C23,18.654,21.654,20,20,20 Z M4,6
+C3.449,6,3,6.449,3,7 L3,17 C3,17.551,3.449,18,4,18 L20,18
+C20.551,18,21,17.551,21,17 L21,7 C21,6.449,20.551,6,20,6 L4,6 Z" />
+    <path
+        android:fillColor="@color/cargar_blue_light"
+        android:pathData="M10,15 L6,15 C5.447,15,5,14.552,5,14 S5.447,13,6,13 L10,13
+C10.553,13,11,13.448,11,14 S10.553,15,10,15 Z" />
+    <path
+        android:fillColor="@color/cargar_blue_light"
+        android:pathData="M10,11 L6,11 C5.447,11,5,10.552,5,10 S5.447,9,6,9 L10,9 C10.553,9,11,9.448,11,10
+S10.553,11,10,11 Z" />
+    <path
+        android:fillColor="@color/cargar_blue_light"
+        android:pathData="M16,8.5 C17.1046,8.5,18,9.39543,18,10.5 C18,11.6046,17.1046,12.5,16,12.5
+C14.8954,12.5,14,11.6046,14,10.5 C14,9.39543,14.8954,8.5,16,8.5 Z" />
+    <path
+        android:fillColor="@color/cargar_blue_light"
+        android:pathData="M16,13.356 C14.438,13.356,13.5,14.071,13.5,14.785
+C13.5,15.142,14.438,15.5,16,15.5 C17.466,15.5,18.5,15.143,18.5,14.785
+C18.5,14.071,17.52,13.356,16,13.356 Z" />
+</vector>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:background="@drawable/gradient_1">
+
+    <LinearLayout
+        style="@style/FirebaseUI.WrapperStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <!--
+            Since the TextInputLayouts change size based on whether or not an error
+            is showing we use a relative layout to position them absolutely
+
+        -->
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:id="@+id/new_account_creation"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/cargar_logo_1"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="36dp"
+                android:src="@drawable/email_other_icon"/>
+            <android.support.design.widget.TextInputLayout
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/email_layout"
+                android:theme="@style/FirebaseUI.Text.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:errorTextAppearance="@style/FirebaseUI.Text.ErrorText"
+                app:hintTextAppearance="@style/FirebaseUI.Text.HintText"
+                android:textColorHint="#AAFFFFFF">
+
+                <EditText
+                    android:id="@+id/email"
+                    style="@style/FirebaseUI.EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"
+                    android:hint="@string/email_hint"
+                    />
+            </android.support.design.widget.TextInputLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="45dp"
+                android:layout_marginRight="10dp"
+                android:src="@drawable/user"/>
+            <android.support.design.widget.TextInputLayout
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/name_layout"
+                android:theme="@style/FirebaseUI.Text.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                app:errorTextAppearance="@style/FirebaseUI.Text.ErrorText"
+                app:hintTextAppearance="@style/FirebaseUI.Text.HintText"
+                android:textColorHint="#AAFFFFFF">
+
+                <EditText
+                    android:id="@+id/name"
+                    style="@style/FirebaseUI.EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:hint="@string/name_hint"
+                    />
+            </android.support.design.widget.TextInputLayout>
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="45dp"
+                android:src="@drawable/password_icon"/>
+            <android.support.design.widget.TextInputLayout
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/password_layout"
+                android:theme="@style/FirebaseUI.Text.TextInputLayout"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:paddingTop="16dp"
+                app:errorTextAppearance="@style/FirebaseUI.Text.ErrorText"
+                app:hintTextAppearance="@style/FirebaseUI.Text.HintText"
+                android:textColorHint="#AAFFFFFF">
+
+                <EditText
+                    style="@style/FirebaseUI.EditText.PasswordField"
+                    android:id="@+id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
+
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
+        <TextView
+            android:id="@+id/create_account_text"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginTop="16dp"
+            style="@style/FirebaseUI.Text.BodyText"
+            />
+
+        <Button
+            style="@style/FirebaseUI.Button.NextButton"
+            android:layout_marginTop="16dp"
+            android:id="@+id/button_create"
+            android:layout_alignParentRight="true"
+            android:textColor="@color/authui_colorAccent"
+            android:layout_marginBottom="16dp"
+            android:text="@string/button_text_save"
+            />
+    </LinearLayout>
+</ScrollView>
