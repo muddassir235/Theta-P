@@ -43,7 +43,6 @@ dependencies {
     compile "com.google.android.gms:play-services-auth:9.4.0"
     compile 'com.github.mmin18:realtimeblurview:1.0.4'
     compile 'com.eightbitlab:blurview:1.2.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha9'
 }
 
 checkstyle {
