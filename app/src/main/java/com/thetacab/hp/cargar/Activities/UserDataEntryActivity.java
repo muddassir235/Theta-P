@@ -57,7 +57,6 @@ import com.thetacab.hp.cargar.storage.ImagePicker;
 
 public class UserDataEntryActivity extends AppCompatActivity {
 
-    public static final int RESULT_OK = 0;
     private static final String TAG = "UserDataEntryActivity: " ;
 
     private static final int MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 011;
@@ -67,54 +66,26 @@ public class UserDataEntryActivity extends AppCompatActivity {
     RadioGroup mGenderChoice;
     RadioButton mMaleRadioButton;
     RadioButton mFemaleRadioButton;
-    RadioGroup mTypeChoice;
-    RadioButton mDriverRadioButton;
-    RadioButton mCustomerRadioButton;
 
-    EditText mDriverCity;
-    EditText mDriverAddress;
     EditText mCNIC;
-    EditText mDriverReferenceName;
-    EditText mDriverReferencePhone;
-    EditText mDriverLiscenceNumber;
-    EditText mDriverBikeLiscenceNumber;
     ProgressBar mDataEntryProgressBar;
 
-    LinearLayout mDivider1;
-    LinearLayout mDivider2;
-    LinearLayout mDivider3;
-
-    FrameLayout mCityFL;
-    FrameLayout mAddressFL;
     FrameLayout mCNICFL;
-    FrameLayout mRefNameFL;
-    FrameLayout mRefPhoneFL;
-    FrameLayout mDriverLicenseFL;
-    FrameLayout mBikePlateFL;
 
     RelativeLayout mProfileImageRL;
-    RelativeLayout mBikeImageRL;
 
     ImageView mProfileIV;
     ImageView mBikeIV;
 
     ImageButton mAddPIThroughCameraIB;
     ImageButton mAddPIThroughGalleryIB;
-    ImageButton mAddBIThroughCameraIB;
-    ImageButton mAddBIThroughGalleryIB;
 
     TextView mPINameTV;
-    TextView mBINameTV;
 
     TextView mPhoneValidationTV;
-    TextView mRefPhonValidationTV;
     TextView mCNICValidationTV;
 
     Uri mProfileImageURI;
-    Uri mBikeImageURI;
-
-    Button mAddProfileImageB;
-    Button mAddBikeImageB;
 
     ProgressDialog progressDialog;
 
@@ -171,7 +142,6 @@ public class UserDataEntryActivity extends AppCompatActivity {
             Log.v(TAG, " permission granted");
         }
 
-        mCustomerRadioButton.setChecked(true);
         mEnterDataButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -190,76 +160,9 @@ public class UserDataEntryActivity extends AppCompatActivity {
             }
         });
 
-        mDriverBikeLiscenceNumber.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if(i == EditorInfo.IME_ACTION_DONE){
-                    enterData();
-                }
-                return false;
-            }
-        });
 
-        mDriverRadioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b){
-                    mDivider1.setVisibility(View.VISIBLE);
-                    mDivider2.setVisibility(View.VISIBLE);
-                    mDivider3.setVisibility(View.VISIBLE);
 
-                    mCityFL.setVisibility(View.VISIBLE);
-                    mAddressFL.setVisibility(View.VISIBLE);
-                    mRefNameFL.setVisibility(View.VISIBLE);
-                    mRefPhoneFL.setVisibility(View.VISIBLE);
-                    mDriverLicenseFL.setVisibility(View.VISIBLE);
-                    mBikePlateFL.setVisibility(View.VISIBLE);
-                    mBikeImageRL.setVisibility(View.VISIBLE);
-                }else{
-                    mDivider1.setVisibility(View.GONE);
-                    mDivider2.setVisibility(View.GONE);
-                    mDivider3.setVisibility(View.GONE);
-
-                    mCityFL.setVisibility(View.GONE);
-                    mAddressFL.setVisibility(View.GONE);
-                    mRefNameFL.setVisibility(View.GONE);
-                    mRefPhoneFL.setVisibility(View.GONE);
-                    mDriverLicenseFL.setVisibility(View.GONE);
-                    mBikePlateFL.setVisibility(View.GONE);
-                    mBikeImageRL.setVisibility(View.GONE);
-                }
-            }
-        });
-
-//        mPhoneTV.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-//
-//                return true;
-//            }
-//        });
-
-      /*  Muddassir got beaten by Gul
-      mPhoneTV.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                Log.e("JUst checking","hello");
-                int phoneNumberStatus = Utils.phoneNumberIsValid(mPhoneTV.getText().toString());
-                if(phoneNumberStatus == Utils.EMPTY){
-                    mPhoneValidationTV.setVisibility(View.GONE);
-                }else if(phoneNumberStatus == Utils.INVALID) {
-                    mPhoneValidationTV.setVisibility(View.VISIBLE);
-                    mPhoneValidationTV.setText("Phone number is not valid :(");
-                    mPhoneValidationTV.setTextColor(getResources().getColor(R.color.errorColor));
-                }else if(phoneNumberStatus == Utils.VALID){
-                    mPhoneValidationTV.setVisibility(View.VISIBLE);
-                    mPhoneValidationTV.setText("Phone number is valid :)");
-                    mPhoneValidationTV.setTextColor(getResources().getColor(R.color.correct_green));
-                }
-                return false;
-            }
-        });*/
-        /* New Listener */
+ /* New Listener */
         mPhoneTV.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -290,35 +193,6 @@ public class UserDataEntryActivity extends AppCompatActivity {
             }
         });
         /*GUl was here*/
-
-        mDriverReferencePhone.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                int phoneNumberStatus = Utils.phoneNumberIsValid(mDriverReferencePhone.getText().toString());
-                if(phoneNumberStatus == Utils.EMPTY){
-                    mRefPhonValidationTV.setVisibility(View.GONE);
-                }else if(phoneNumberStatus == Utils.INVALID) {
-                    mRefPhonValidationTV.setVisibility(View.VISIBLE);
-                    mRefPhonValidationTV.setText("Phone number is not valid :(");
-                    mRefPhonValidationTV.setTextColor(getResources().getColor(R.color.errorColor));
-                }else if(phoneNumberStatus == Utils.VALID){
-                    mRefPhonValidationTV.setVisibility(View.VISIBLE);
-                    mRefPhonValidationTV.setText("Phone number is valid :)");
-                    mRefPhonValidationTV.setTextColor(getResources().getColor(R.color.correct_green));
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
 
         mCNIC.addTextChangedListener(new TextWatcher() {
             @Override
@@ -421,97 +295,6 @@ public class UserDataEntryActivity extends AppCompatActivity {
                 });
             }
         });
-
-        mAddBIThroughCameraIB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImagePicker.getInstance(UserDataEntryActivity.this).takePictureFromCamera().setImageListener(new ImagePicker.LocalImageListener() {
-                    @Override
-                    public void onSuccess(Uri uri, int mediumType) {
-                        Log.v(TAG, uri.toString());
-                        mBikeImageURI = uri;
-                        Picasso.with(getApplicationContext()).load(uri).resize(getPXfromDP(120f),getPXfromDP(120f)).centerCrop().into(mBikeIV);
-                        mBikeIV.setPadding(getPXfromDP(5f),getPXfromDP(5f),getPXfromDP(5f),getPXfromDP(5f));
-                        if (mBikeImageURI.getScheme().equals("file")) {
-                            mBINameTV.setText(mBikeImageURI.getLastPathSegment());
-                        } else {
-                            Cursor cursor = null;
-                            try {
-                                cursor = getContentResolver().query(mBikeImageURI, new String[]{
-                                        MediaStore.Images.ImageColumns.DISPLAY_NAME
-                                }, null, null, null);
-
-                                if (cursor != null && cursor.moveToFirst()) {
-                                    mBINameTV.setText(cursor.getString(cursor.getColumnIndex(MediaStore.Images.ImageColumns.DISPLAY_NAME)));
-
-                                }
-                            } finally {
-
-                                if (cursor != null) {
-                                    cursor.close();
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        });
-
-        mAddBIThroughGalleryIB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImagePicker.getInstance(UserDataEntryActivity.this).takePictureFromGallery().setImageListener(new ImagePicker.LocalImageListener() {
-                    @Override
-                    public void onSuccess(Uri uri, int mediumType) {
-                        Log.v(TAG, uri.toString());
-                        mBikeImageURI = uri;
-                        Picasso.with(getApplicationContext()).load(uri).resize(getPXfromDP(120f),getPXfromDP(120f)).centerCrop().into(mBikeIV);
-                        mBikeIV.setPadding(getPXfromDP(5f),getPXfromDP(5f),getPXfromDP(5f),getPXfromDP(5f));
-                        if (mBikeImageURI.getScheme().equals("file")) {
-                            mBINameTV.setText(mBikeImageURI.getLastPathSegment());
-                        } else {
-                            Cursor cursor = null;
-                            try {
-                                cursor = getContentResolver().query(mBikeImageURI, new String[]{
-                                        MediaStore.Images.ImageColumns.DISPLAY_NAME
-                                }, null, null, null);
-
-                                if (cursor != null && cursor.moveToFirst()) {
-                                    mBINameTV.setText(cursor.getString(cursor.getColumnIndex(MediaStore.Images.ImageColumns.DISPLAY_NAME)));
-
-                                }
-                            } finally {
-
-                                if (cursor != null) {
-                                    cursor.close();
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        });
-
-
-
-//        ImagePicker.getInstance(this).takePictureFromGallery().setImageListener(new ImagePicker.LocalImageListener() {
-//            @Override
-//            public void onSuccess(Uri uri, int mediumType) {
-//
-//            }
-//        });
-//        ImageGetterSetter.getInstance(this).setImage().setImageSetterGetterListener(new ImageGetterSetter.FirebaseSetterImageListener() {
-//            @Override
-//            public void onSuccess(Uri uri) {
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Exception e) {
-//
-//            }
-//        });
-
     }
 
     int getPXfromDP(float dps){
@@ -521,12 +304,6 @@ public class UserDataEntryActivity extends AppCompatActivity {
     void enterData(){
         boolean allDataEntered = true;
         View focusView = null;
-
-        if(!mCustomerRadioButton.isChecked()&&!mDriverRadioButton.isChecked()){
-            focusView = mTypeChoice;
-            Toast.makeText(getApplicationContext()," Please select whether you want to be a customer or driver",Toast.LENGTH_SHORT).show();
-            allDataEntered = false;
-        }
 
         if(!mMaleRadioButton.isChecked()&&!mFemaleRadioButton.isChecked()){
             focusView = mGenderChoice;
@@ -552,69 +329,6 @@ public class UserDataEntryActivity extends AppCompatActivity {
             allDataEntered = false;
         }
 
-
-        if(allDataEntered){
-            String type="";
-
-            if(mTypeChoice.getCheckedRadioButtonId()==mDriverRadioButton.getId()){
-                type = "driver";
-            }else if (mTypeChoice.getCheckedRadioButtonId() == mCustomerRadioButton.getId()){
-                type = "customer";
-            }
-
-            if(type.equals("driver")){
-
-                if(TextUtils.isEmpty(mDriverBikeLiscenceNumber.getText().toString())){
-                    focusView = mDriverBikeLiscenceNumber;
-                    mDriverBikeLiscenceNumber.setError("Please enter your bike's liscence plate number");
-                    allDataEntered = false;
-                }
-
-                if (TextUtils.isEmpty(mDriverLiscenceNumber.getText().toString())) {
-                    focusView = mDriverLiscenceNumber;
-                    mDriverLiscenceNumber.setError("Please enter your driving liscence number");
-                    allDataEntered = false;
-                }
-
-                if(Utils.phoneNumberIsValid(mDriverReferencePhone.getText().toString())!=Utils.VALID){
-                    focusView = mDriverReferencePhone;
-                    mDriverReferencePhone.setError("Enter a valid phone number");
-                    allDataEntered = false;
-                }
-
-                if(TextUtils.isEmpty(mDriverReferenceName.getText())){
-                    focusView = mDriverReferenceName;
-                    mDriverReferenceName.setError("Reference's name is required");
-                    allDataEntered = false;
-                }
-
-                if(TextUtils.isEmpty(mDriverAddress.getText())){
-                    focusView = mDriverAddress;
-                    mDriverAddress.setError("Please enter your address");
-                    allDataEntered = false;
-                }
-
-                if(TextUtils.isEmpty(mDriverCity.getText())){
-                    focusView = mDriverCity;
-                    mDriverCity.setError("Please enter your city");
-                    allDataEntered = false;
-                }
-
-                if(mBikeImageURI == null){
-                    focusView = mBikeIV;
-                    Toast.makeText(getApplicationContext()," Please add an Image of your bike.",Toast.LENGTH_SHORT).show();
-                    allDataEntered = false;
-                }
-
-                if(mProfileIV == null){
-                    focusView = mProfileIV;
-                    Toast.makeText(getApplicationContext()," Please add your a clear photo of yourself.",Toast.LENGTH_SHORT).show();
-                    allDataEntered = false;
-                }
-
-            }
-        }
-
         if(allDataEntered){
             String gender="";
             if(mGenderChoice.getCheckedRadioButtonId() == mMaleRadioButton.getId()){
@@ -623,13 +337,6 @@ public class UserDataEntryActivity extends AppCompatActivity {
                 gender = "female";
             }
 
-            String type="";
-
-            if(mTypeChoice.getCheckedRadioButtonId()==mDriverRadioButton.getId()){
-                type = "driver";
-            }else if (mTypeChoice.getCheckedRadioButtonId() == mCustomerRadioButton.getId()){
-                type = "customer";
-            }
             final User[] user = new User[1];
 
             mDataEntryProgressBar.setVisibility(View.VISIBLE);
@@ -639,113 +346,43 @@ public class UserDataEntryActivity extends AppCompatActivity {
             progressDialog.setMessage("Entering Images and Data");
             progressDialog.show();
 
-            if(type.equals("driver")){
-                final String city = mDriverCity.getText().toString();
-                final String address = mDriverAddress.getText().toString();
-                final String cNIC = mCNIC.getText().toString();
-                final String refName = mDriverReferenceName.getText().toString();
-                final String refPhone = mDriverReferencePhone.getText().toString();
-                final String drivingLisNum = mDriverLiscenceNumber.getText().toString();
-                final String bikeLisPlateNum = mDriverBikeLiscenceNumber.getText().toString();
 
-                final String finalType = type;
-                final String finalGender = gender;
-                ImageGetterSetter.getInstance(this).
-                        setImage(mProfileImageURI,Constants.DRIVER_PROFILE_PIC,
-                                Constants.FIREBASE_STORAGE_DRIVER_REFERENCE,
-                                firebaseUser.getUid()
-                        ).setImageSetterGetterListener(new ImageGetterSetter.FirebaseSetterImageListener() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        final String profileImageURL = uri.toString();
-                        ImageGetterSetter.getInstance(UserDataEntryActivity.this).
-                                setImage(mBikeImageURI,Constants.DRIVER_BIKE_IMAGE,
-                                        Constants.FIREBASE_STORAGE_DRIVER_REFERENCE,
-                                        firebaseUser.getUid()
-                                ).setImageSetterGetterListener(new ImageGetterSetter.FirebaseSetterImageListener() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                String bikeImageURL = uri.toString();
-                                user[0] = new User(firebaseUser.getUid(),firebaseUser.getEmail(),firebaseUser.getDisplayName(),mPhoneTV.getText().toString(), finalType, finalGender
-                                        ,cNIC,address,refName,refPhone,city,bikeLisPlateNum,drivingLisNum,null,profileImageURL,bikeImageURL,Constants.DRIVER_NOT_VERIFIED);
+            final String finalType1 = "customer";
+            final String finalGender1 = gender;
+            ImageGetterSetter.getInstance(this).
+                    setImage(mProfileImageURI,Constants.DRIVER_PROFILE_PIC,
+                            Constants.FIREBASE_STORAGE_DRIVER_REFERENCE,
+                            firebaseUser.getUid()
+                    ).setImageSetterGetterListener(new ImageGetterSetter.FirebaseSetterImageListener() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    final String profileImageURL = uri.toString();
+                    user[0] = new User(
+                            firebaseUser.getUid(),
+                            firebaseUser.getEmail(),
+                            firebaseUser.getDisplayName(),
+                            mPhoneTV.getText().toString(),
+                            finalType1,
+                            finalGender1,mCNIC.getText().toString(),null,null,null,null,null,null,null
+                            ,profileImageURL,null
+                    );
 
-                                FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid()).setValue(user[0]);
-                                FirebaseDatabase.getInstance().getReference().child("UserThatEnteredData").child(firebaseUser.getUid()).setValue(true);
-                                if(finalType.equals("driver")){
-                                    Log.v(TAG, " the user is a driver");
-                                    FirebaseDatabase.getInstance().getReference().child("drivers").child(firebaseUser.getUid()).setValue(true);
-                                    StartupActivity.saveAsDriverOrCustomer(getApplicationContext(), Constants.TYPE_DRIVER);
-                                }else if(finalType.equals("customer")){
-                                    Log.v(TAG, " the user is a customer");
-                                    FirebaseDatabase.getInstance().getReference().child("customers").child(firebaseUser.getUid()).setValue(true);
-                                    StartupActivity.saveAsDriverOrCustomer(getApplicationContext(), Constants.TYPE_CUSTOMER);
-                                }
-                                StartupActivity.userDataHasBeenEnteredForId(getApplicationContext(),firebaseUser.getUid());
-                                progressDialog.dismiss();
-                                Intent intent = new Intent(getApplicationContext(), StartupActivity.class);
-                                finish();
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(intent);
-                            }
+                    FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid()).setValue(user[0]);
+                    FirebaseDatabase.getInstance().getReference().child("UserThatEnteredData").child(firebaseUser.getUid()).setValue(true);
+                    StartupActivity.userDataHasBeenEnteredForId(getApplicationContext(),firebaseUser.getUid());
+                    progressDialog.dismiss();
+                    Intent intent = new Intent(getApplicationContext(), StartupActivity.class);
+                    finish();
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
 
-                            @Override
-                            public void onFailure(Exception e) {
+                @Override
+                public void onFailure(Exception e) {
 
-                            }
-                        });
-                    }
+                }
+            });
 
-                    @Override
-                    public void onFailure(Exception e) {
-
-                    }
-                });
-            }else {
-                final String finalType1 = type;
-                final String finalGender1 = gender;
-                ImageGetterSetter.getInstance(this).
-                        setImage(mProfileImageURI,Constants.DRIVER_PROFILE_PIC,
-                                Constants.FIREBASE_STORAGE_DRIVER_REFERENCE,
-                                firebaseUser.getUid()
-                        ).setImageSetterGetterListener(new ImageGetterSetter.FirebaseSetterImageListener() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        final String profileImageURL = uri.toString();
-                        user[0] = new User(
-                                firebaseUser.getUid(),
-                                firebaseUser.getEmail(),
-                                firebaseUser.getDisplayName(),
-                                mPhoneTV.getText().toString(),
-                                finalType1,
-                                finalGender1,mCNIC.getText().toString(),null,null,null,null,null,null,null
-                                ,profileImageURL,null
-                        );
-
-                        FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid()).setValue(user[0]);
-                        FirebaseDatabase.getInstance().getReference().child("UserThatEnteredData").child(firebaseUser.getUid()).setValue(true);
-                        if(finalType1.equals("driver")){
-                            Log.v(TAG, " the user is a driver");
-                            FirebaseDatabase.getInstance().getReference().child("drivers").child(firebaseUser.getUid()).setValue(true);
-                            StartupActivity.saveAsDriverOrCustomer(getApplicationContext(), Constants.TYPE_DRIVER);
-                        }else if(finalType1.equals("customer")){
-                            Log.v(TAG, " the user is a customer");
-                            FirebaseDatabase.getInstance().getReference().child("customers").child(firebaseUser.getUid()).setValue(true);
-                            StartupActivity.saveAsDriverOrCustomer(getApplicationContext(), Constants.TYPE_CUSTOMER);
-                        }
-                        StartupActivity.userDataHasBeenEnteredForId(getApplicationContext(),firebaseUser.getUid());
-                        progressDialog.dismiss();
-                        Intent intent = new Intent(getApplicationContext(), StartupActivity.class);
-                        finish();
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-
-                    }
-                });
-            }
         }else {
             focusView.requestFocus();
         }
@@ -767,43 +404,18 @@ public class UserDataEntryActivity extends AppCompatActivity {
         mEnterDataButton = (Button) findViewById(R.id.enter_data_button);
         mPhoneTV = (AutoCompleteTextView) findViewById(R.id.phone);
         mGenderChoice = (RadioGroup) findViewById(R.id.customer_gender_sign_up);
-        mTypeChoice = (RadioGroup) findViewById(R.id.customerid_signup);
         mMaleRadioButton = (RadioButton) findViewById(R.id.male_gender_radio_button);
         mFemaleRadioButton = (RadioButton) findViewById(R.id.female_gender_radio_button);
-        mDriverRadioButton = (RadioButton) findViewById(R.id.driver_signup);
-        mCustomerRadioButton = (RadioButton) findViewById(R.id.customer_signup);
         mDataEntryProgressBar = (ProgressBar) findViewById(R.id.data_entry_progress_bar);
-        mDriverCity = (EditText) findViewById(R.id.city);
-        mDriverAddress = (EditText) findViewById(R.id.address);
         mCNIC = (EditText) findViewById(R.id.cnic);
-        mDriverReferenceName = (EditText) findViewById(R.id.reference_name);
-        mDriverReferencePhone = (EditText) findViewById(R.id.reference_phone);
-        mDriverLiscenceNumber = (EditText) findViewById(R.id.liscence_number);
-        mDriverBikeLiscenceNumber = (EditText) findViewById(R.id.liscence_plate_number);
-        mDivider1 = (LinearLayout) findViewById(R.id.divider1);
-        mDivider2 = (LinearLayout) findViewById(R.id.divider2);
-        mDivider3 = (LinearLayout) findViewById(R.id.divider3);
-        mCityFL = (FrameLayout) findViewById(R.id.city_frame_layout);
-        mAddressFL = (FrameLayout) findViewById(R.id.address_frame_layout);
         mCNICFL = (FrameLayout) findViewById(R.id.cnic_frame_layout);
-        mRefNameFL = (FrameLayout) findViewById(R.id.ref_name_frame_layout);
-        mRefPhoneFL = (FrameLayout) findViewById(R.id.ref_phone_frame_layout);
-        mDriverLicenseFL = (FrameLayout) findViewById(R.id.driver_license_frame_layout);
-        mBikePlateFL = (FrameLayout) findViewById(R.id.bike_plate_frame_layout);
         mProfileImageRL = (RelativeLayout) findViewById(R.id.profile_image_layout);
-        mBikeImageRL = (RelativeLayout) findViewById(R.id.bike_image_layout);
         mProfileIV = (ImageView) findViewById(R.id.profile_picture_image_view);
         mBikeIV = (ImageView) findViewById(R.id.bike_picture_image_view);
-        mAddProfileImageB = (Button) findViewById(R.id.add_profile_image_button);
-        mAddBikeImageB = (Button) findViewById(R.id.add_bike_image_button);
         mAddPIThroughCameraIB = (ImageButton) findViewById(R.id.add_profile_image_through_camera_button);
         mAddPIThroughGalleryIB = (ImageButton) findViewById(R.id.add_profile_image_through_gallery_button);
-        mAddBIThroughCameraIB = (ImageButton) findViewById(R.id.add_bike_image_through_camera_button);
-        mAddBIThroughGalleryIB = (ImageButton) findViewById(R.id.add_bike_image_through_gallery_button);
         mPINameTV = (TextView) findViewById(R.id.profile_image_name_text_view);
-        mBINameTV = (TextView) findViewById(R.id.bike_image_name_text_view);
         mPhoneValidationTV = (TextView) findViewById(R.id.phone_number_validation_text_view);
-        mRefPhonValidationTV  = (TextView) findViewById(R.id.reference_phone_number_validation_text_view);
         mCNICValidationTV = (TextView) findViewById(R.id.cnic_validation_text_view);
     }
 
