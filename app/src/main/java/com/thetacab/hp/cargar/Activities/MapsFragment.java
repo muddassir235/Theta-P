@@ -5,6 +5,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -296,6 +297,7 @@ public class MapsFragment extends Fragment implements
         setTripEndedListener();
         markerButton.setCardBackgroundColor(Color.parseColor("#ddF9BA32"));
         checkingLayout(markerButton);
+        launchAppropriateAppState();
         return rootView;
     }
 
@@ -788,6 +790,19 @@ public class MapsFragment extends Fragment implements
         }
     }
 
+    /**
+     * Called when a fragment is first attached to its activity.
+     * {@link #onCreate(Bundle)} will be called after this.
+     *
+     * @param activity
+     * @deprecated See {@link #onAttach(Context)}.
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        context=activity;
+    }
+
     RatingBar ratingBar;
 
     void showRatingDialog() {
@@ -795,7 +810,12 @@ public class MapsFragment extends Fragment implements
         TextView finalFairTextView;
         final TextView ratingPromptTV;
 
+        if(getActivity()==null){
+            Log.e("Hello world","nullptr");
+        }
+
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
         if(firebaseUser == null){
             return;
         }
@@ -837,6 +857,9 @@ public class MapsFragment extends Fragment implements
                                             child(firebaseUser.getUid()).
                                             setValue(null);
 
+
+                                    removeEventListeners();
+
                                     Intent intent = new Intent(context, MapsActivity.class);
                                     MapsActivity.activity.finish();
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -848,7 +871,9 @@ public class MapsFragment extends Fragment implements
                             public void onCancelled(DatabaseError databaseError) {
 
                             }
-                        });
+                        }
+                        );
+                        dialog.dismiss();
                     }
                 }).build();
 
@@ -1111,6 +1136,7 @@ public class MapsFragment extends Fragment implements
         super.onPause();
         if(ratingDialogFragment!=null) {
             ratingDialogFragment.dismiss();
+            removeEventListeners();
         }
     }
 
