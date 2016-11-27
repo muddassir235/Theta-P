@@ -96,6 +96,12 @@ public class GoogleDirectionsApiWrapper {
         this.mapsFragment = fragment;
         cabType=1;
         listenForFairCalculationParams();
+        bikeBaseRate = 20;
+        bikeDistanceCoefficient = 15;
+        bikeTimeCoefficient = 0;
+        carBaseRate = 80;
+        carDistanceCoefficent = 16;
+        carTimeCoefficient = 2;
     }
 
     public GoogleDirectionsApiWrapper setShow20Warning(boolean show){
@@ -324,7 +330,7 @@ public class GoogleDirectionsApiWrapper {
         double etaInMinutes = ((double) etaInSeconds)/((double)60);
         int Mins = (int) (etaInMinutes + 0.5);
 
-        int fairEstimate;
+        int fairEstimate = 50;
 
         if(cabType == 0){
             if(KMs<=2){
@@ -341,9 +347,12 @@ public class GoogleDirectionsApiWrapper {
         }else if(cabType ==1){
             fairEstimate = (KMs*carDistanceCoefficent)+(Mins*carTimeCoefficient)+carBaseRate;
         }else {
-            fairEstimate = -1;
+            fairEstimate = 50;
         }
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(fairEstimate<50){
+            fairEstimate = 50;
+        }
         return fairEstimate;
     }
 

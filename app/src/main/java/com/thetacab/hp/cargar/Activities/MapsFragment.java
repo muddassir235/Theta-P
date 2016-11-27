@@ -147,7 +147,6 @@ public class MapsFragment extends Fragment implements
     private int currentAppState;
     private String driverId;
     private LatLng cabLatLng;
-    private String instanceId;
     private boolean cabFoundScreenHadBeenShown;
     private LatLng sourceLatLng;
     private LatLng destinationLatLng;
@@ -233,7 +232,6 @@ public class MapsFragment extends Fragment implements
     TextView mDriverRatingTV;
     @InjectView(R.id.driver_number_of_ratings_text_view)
     TextView mDriverTotalRatingsTV;
-
 
     static DialogFragment ratingDialogFragment;
 
@@ -803,134 +801,15 @@ public class MapsFragment extends Fragment implements
         context=activity;
     }
 
-    RatingBar ratingBar;
 
     void showRatingDialog() {
-        ImageView driverProfileIV;
-        TextView finalFairTextView;
-        final TextView ratingPromptTV;
-
-        if(getActivity()==null){
-            Log.e("Hello world","nullptr");
+        try {
+            ratingDialogFragment = new RatingDialog();
+            ratingDialogFragment.setCancelable(false);
+            ratingDialogFragment.show(getChildFragmentManager(), "rating");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        if(firebaseUser == null){
-            return;
-        }
-
-        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-                .title("Rating")
-                .customView(R.layout.dialog_rating, true)
-                .positiveText("OK")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        final float rating = ratingBar.getRating();
-                        FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.exists()){
-
-                                    String driverId = (String) dataSnapshot.getValue();
-
-                                    HashMap<String,Object> ratingData = new HashMap<String, Object>();
-                                    ratingData.put("customerKey",firebaseUser.getUid());
-                                    ratingData.put("rating",rating);
-
-                                    FirebaseDatabase.getInstance().getReference().
-                                            child("DriverRating").
-                                            child(driverId).
-                                            push().
-                                            setValue(ratingData);
-
-                                    FirebaseDatabase.getInstance().
-                                            getReference().
-                                            child("State").
-                                            child(firebaseUser.getUid()).
-                                            setValue(1);
-
-                                    FirebaseDatabase.getInstance().
-                                            getReference().
-                                            child("AcceptedOrders").
-                                            child(firebaseUser.getUid()).
-                                            setValue(null);
-
-
-                                    removeEventListeners();
-
-                                    Intent intent = new Intent(context, MapsActivity.class);
-                                    MapsActivity.activity.finish();
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                    MapsActivity.activity.startActivity(intent);
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        }
-                        );
-                        dialog.dismiss();
-                    }
-                }).build();
-
-        ratingBar = (RatingBar) dialog.getCustomView().findViewById(R.id.driver_rating_bar);
-        driverProfileIV = (ImageView) dialog.getCustomView().findViewById(R.id.driver_image_view);
-        finalFairTextView = (TextView) dialog.getCustomView().findViewById(R.id.final_fair_tv);
-        ratingPromptTV = (TextView) dialog.getCustomView().findViewById(R.id.rating_prompt_tv);
-
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if(user!=null) {
-            final TextView finalFairTextView1 = finalFairTextView;
-            FirebaseDatabase.getInstance().getReference().child("FairEstimate").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()){
-                        finalFairTextView1.setText(""+((Long)dataSnapshot.getValue()));
-                    }else{
-                        finalFairTextView1.setText(""+50);
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-        }
-
-        FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    String driverId = (String) dataSnapshot.getValue();
-
-                    FirebaseDatabase.getInstance().getReference().child("Users").child(driverId).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            User driver = dataSnapshot.getValue(User.class);
-                            ratingPromptTV.setText("How much do you rate "+driver.name+"?");
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        dialog.show();
     }
 
     public void showDistanceNotSupportedDialog(){
@@ -1306,28 +1185,6 @@ public class MapsFragment extends Fragment implements
 
         FirebaseDatabase.getInstance().getReference().child("EndTrip").child(user.getUid()).addValueEventListener(tripEndedListener);
     }
-
-    public static class RatingDialog extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-
-            View rootView = inflater.inflate(R.layout.dialog_rating, null);
-
-            // Inflate and set the layout for the dialog
-            // Pass null as the parent view because its going in the dialog layout
-            builder.setView(rootView);
-
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-
-                        }
-                    });
-            return builder.create();
-        }
-    }
-
 
     void setOnClickListenerOnRequestCabButton(){
         requestCabButton.setOnClickListener(new View.OnClickListener() {
@@ -2280,9 +2137,12 @@ public class MapsFragment extends Fragment implements
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
-                    FirebaseDatabase.getInstance().getReference().child("EndTrip").child(user.getUid()).setValue(null);
-                    removeEventListeners();
-                    showRatingDialog();
+                    if(getActivity()!=null) {
+                        FirebaseDatabase.getInstance().getReference().child("EndTrip").child(user.getUid()).setValue(null);
+                        removeEventListeners();
+                        Log.v(TAG, " showing rating dialog");
+                        showRatingDialog();
+                    }
                 }
             }
 
@@ -2445,6 +2305,7 @@ public class MapsFragment extends Fragment implements
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         if(user == null){
+            Log.v(TAG," user is null ");
             return;
         }
 
@@ -2513,7 +2374,7 @@ public class MapsFragment extends Fragment implements
                                                 @Override
                                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                                     if (dataSnapshot.exists()) {
-                                                        instanceId = dataSnapshot.getValue().toString();
+                                                        String instanceId = dataSnapshot.getValue().toString();
                                                         SendNotif send = new SendNotif(context,SendNotif.PASSENGER_TO_DRIVER, SendNotif.CAB_ARRIVED_NOTIF,driverId);
                                                         send.setTitle("The Trip has been Cancelled");
                                                         send.send();
@@ -2542,4 +2403,126 @@ public class MapsFragment extends Fragment implements
         getActivity().finish();
         startActivity(intent);
     }
+
+    public static class RatingDialog extends DialogFragment {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.MyRatingDialogTheme);
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+
+            View rootView = inflater.inflate(R.layout.dialog_rating, null);
+
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            builder.setView(rootView);
+
+            final RatingBar ratingBar = (RatingBar) rootView.findViewById(R.id.driver_rating_bar);
+            ImageView driverProfileIV = (ImageView) rootView.findViewById(R.id.driver_image_view);
+            final TextView finalFairTextView = (TextView) rootView.findViewById(R.id.final_fair_tv);
+
+            final TextView ratingPromptTV = (TextView) rootView.findViewById(R.id.rating_prompt_tv);
+
+            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+            if(user!=null) {
+                FirebaseDatabase.getInstance().getReference().child("FairEstimate").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()){
+                            finalFairTextView.setText(""+((Long)dataSnapshot.getValue()));
+                        }else{
+                            finalFairTextView.setText(""+50);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        String driverId = (String) dataSnapshot.getValue();
+
+                        FirebaseDatabase.getInstance().getReference().child("Users").child(driverId).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                User driver = dataSnapshot.getValue(User.class);
+                                ratingPromptTV.setText("How much do you rate "+driver.name+"?");
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    final float rating = ratingBar.getRating();
+                    FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.exists()){
+
+
+
+                                String driverId = (String) dataSnapshot.getValue();
+
+                                HashMap<String,Object> ratingData = new HashMap<String, Object>();
+                                ratingData.put("customerKey",user.getUid());
+                                ratingData.put("rating",rating);
+
+                                FirebaseDatabase.getInstance().getReference().
+                                        child("DriverRating").
+                                        child(driverId).
+                                        push().
+                                        setValue(ratingData);
+
+                                FirebaseDatabase.getInstance().
+                                        getReference().
+                                        child("State").
+                                        child(user.getUid()).
+                                        setValue(1);
+
+                                FirebaseDatabase.getInstance().
+                                        getReference().
+                                        child("AcceptedOrders").
+                                        child(user.getUid()).
+                                        setValue(null);
+
+
+
+                                Intent intent = new Intent(context, MapsActivity.class);
+                                MapsActivity.activity.finish();
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                MapsActivity.activity.startActivity(intent);
+                                ratingDialogFragment.dismiss();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            });
+            return builder.create();
+        }
+    }
+
 }
