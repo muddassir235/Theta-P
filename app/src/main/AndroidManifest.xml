@@ -54,9 +54,6 @@
             android:name=".CabTrackerActivity"
             android:label="@string/title_activity_cab_tracker"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".LocationUploadActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
         <!--
  ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.

@@ -1789,10 +1789,10 @@ public class MapsFragment extends Fragment implements
     }
 
     private boolean isSourceLatLngWithinBounds(LatLng centerOfMapLatLng) {
-        return centerOfMapLatLng.latitude<=33.662271&&
-                        centerOfMapLatLng.longitude>=72.970657
-                        &&centerOfMapLatLng.latitude>=33.636449
-                        &&centerOfMapLatLng.longitude<=73.047456;
+        return centerOfMapLatLng.latitude<=33.666302&&
+                        centerOfMapLatLng.longitude>= 72.958939
+                        &&centerOfMapLatLng.latitude>=33.628988
+                        &&centerOfMapLatLng.longitude<=73.017064;
     }
 
     void setOnCancelListenerForSourceCard(){

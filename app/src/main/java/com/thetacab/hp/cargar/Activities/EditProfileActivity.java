@@ -1,13 +1,18 @@
 package com.thetacab.hp.cargar.Activities;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -120,6 +125,8 @@ public class EditProfileActivity extends AppCompatActivity {
         mBikeImageEdited = false;
 
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        getExternalStoragePermissions();
 
         if(user!=null) {
             FirebaseDatabase.getInstance().getReference().child("Users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -679,5 +686,53 @@ public class EditProfileActivity extends AppCompatActivity {
         mFieldsLayout = (LinearLayout) findViewById(R.id.fields_layout);
         mLoadingAnim = (ProgressBar) findViewById(R.id.loading_data);
         mCloseButton = (ImageButton) findViewById(R.id.close_button);
+    }
+
+    void getExternalStoragePermissions() {
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    Constants.MY_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+            // MY_PERMISSIONS_REQUEST_BLUETOOTH is an
+            // app-defined int constant. The callback method gets the
+            // result of the request.
+
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        Log.v(TAG, " code callback: "+requestCode);
+        switch (requestCode) {
+            case Constants.MY_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // locations-related task you need to do.
+
+                } else {
+                    mPickProfileImageFromCamera.setClickable(false);
+                    mPickProfileImageFromCamera.setOnClickListener(null);
+                    mPickProfileImageFromCamera.setFocusable(false);
+                    mPickProfileImageFromCamera.setVisibility(View.INVISIBLE);
+
+                    Toast.makeText(getApplicationContext(),"To take image from camera external storage permission required",Toast.LENGTH_SHORT).show();
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 }

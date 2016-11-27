@@ -60,4 +60,6 @@ public class Constants {
     public static final String FIREBASE_STORAGE_DRIVER_REFERENCE="Driver/";
 
     public static final String DRIVER_BIKE_IMAGE = "BikeImage/";
+
+    public static final int MY_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 }

@@ -121,23 +121,7 @@ public class UserDataEntryActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
-            // Should we show an explanation?
-//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//
-//                // Show an expanation to the user *asynchronously* -- don't block
-//                // this thread waiting for the user's response! After the user
-//                // sees the explanation, try again to request the permission.
-//
-//            } else {
-//
-//                // No explanation needed, we can request the permission.
-//
-//
-//                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-//                // app-defined int constant. The callback method gets the
-//                // result of the request.
-//            }
+
         }else {
             Log.v(TAG, " permission granted");
         }
@@ -434,7 +418,7 @@ public class UserDataEntryActivity extends AppCompatActivity {
                 } else {
                     final RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.root_layout);
                     Snackbar snackbar = Snackbar
-                            .make(relativeLayout, "External storage access required for profile picture. Sign up may fail!", Snackbar.LENGTH_LONG)
+                            .make(relativeLayout, "External storage access required for accessing camera!", Snackbar.LENGTH_LONG)
                             .setAction("SETTINGS", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
@@ -444,6 +428,11 @@ public class UserDataEntryActivity extends AppCompatActivity {
 
                     snackbar.setActionTextColor(getResources().getColor(R.color.errorColor));
                     snackbar.show();
+
+                    mAddPIThroughCameraIB.setClickable(false);
+                    mAddPIThroughCameraIB.setOnClickListener(null);
+                    mAddPIThroughCameraIB.setFocusable(false);
+                    mAddPIThroughCameraIB.setVisibility(View.INVISIBLE);
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
