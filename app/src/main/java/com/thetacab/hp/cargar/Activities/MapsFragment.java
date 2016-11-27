@@ -131,11 +131,8 @@ public class MapsFragment extends Fragment implements
     static MapsFragment fragment;
 
     static GoogleDirectionsApiWrapper googleDirectionsApiWrapper;
-    FirebaseAuth mAuth;
     GoogleApiClient mGoogleApiClient;
     android.location.Location mLastLocation;
-
-    static String uId;
 
     //Fields
     int noOfAnimationsRunning;
@@ -290,7 +287,6 @@ public class MapsFragment extends Fragment implements
         fragment = this;
         animateCurrLocationButton = true;
         defineAllListeners();
-        uId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         setupAllViews();
         initializeFields();
         setupGooglePlacesAPI();
@@ -301,6 +297,7 @@ public class MapsFragment extends Fragment implements
         setTripEndedListener();
         markerButton.setCardBackgroundColor(Color.parseColor("#ddF9BA32"));
         checkingLayout(markerButton);
+        launchAppropriateAppState();
         return rootView;
     }
 
@@ -407,10 +404,16 @@ public class MapsFragment extends Fragment implements
         if (location != null) {
             mLastLocation = location;
             Log.v("LocationChanged", " Entered On location changed");
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+            if(user==null){
+                return;
+            }
+
             FirebaseDatabase.getInstance().getReference().child("PassengerLocation").
-                    child(uId).child("lat").setValue(location.getLatitude());
+                    child(user.getUid()).child("lat").setValue(location.getLatitude());
             FirebaseDatabase.getInstance().getReference().child("PassengerLocation").
-                    child(uId).child("lng").setValue(location.getLongitude());
+                    child(user.getUid()).child("lng").setValue(location.getLongitude());
         }
     }
 
@@ -548,7 +551,9 @@ public class MapsFragment extends Fragment implements
                     driverCardHolderFL,cancelTripButton
             );
             Animations.remove(findCabAnimView);
-            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(dataSnapshot.exists()) {
@@ -634,7 +639,10 @@ public class MapsFragment extends Fragment implements
                     driverCardHolderFL
             );
             Animations.remove(findCabAnimView);
-            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
+
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(dataSnapshot.exists()) {
@@ -729,12 +737,19 @@ public class MapsFragment extends Fragment implements
             Animations.makeVisible(etaOfCabTV,mHelpSMSButton,mHelpCallButton);
             inTrip = true;
             setOnTripStartedListener();
-            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
+
+            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+            if(user == null){
+                return;
+            }
+
+            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(dataSnapshot.exists()){
                         driverId = (String) dataSnapshot.getValue();
-                        FirebaseDatabase.getInstance().getReference().child("Order").child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        FirebaseDatabase.getInstance().getReference().child("Order").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if(dataSnapshot.exists()) {
@@ -798,7 +813,14 @@ public class MapsFragment extends Fragment implements
         if(getActivity()==null){
             Log.e("Hello world","nullptr");
         }
-        final MaterialDialog dialog = new MaterialDialog.Builder(context)
+
+        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(firebaseUser == null){
+            return;
+        }
+
+        MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
                 .title("Rating")
                 .customView(R.layout.dialog_rating, true)
                 .positiveText("OK")
@@ -806,7 +828,7 @@ public class MapsFragment extends Fragment implements
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         final float rating = ratingBar.getRating();
-                        FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if(dataSnapshot.exists()){
@@ -814,7 +836,7 @@ public class MapsFragment extends Fragment implements
                                     String driverId = (String) dataSnapshot.getValue();
 
                                     HashMap<String,Object> ratingData = new HashMap<String, Object>();
-                                    ratingData.put("customerKey",uId);
+                                    ratingData.put("customerKey",firebaseUser.getUid());
                                     ratingData.put("rating",rating);
 
                                     FirebaseDatabase.getInstance().getReference().
@@ -826,18 +848,18 @@ public class MapsFragment extends Fragment implements
                                     FirebaseDatabase.getInstance().
                                             getReference().
                                             child("State").
-                                            child(uId).
+                                            child(firebaseUser.getUid()).
                                             setValue(1);
 
                                     FirebaseDatabase.getInstance().
                                             getReference().
                                             child("AcceptedOrders").
-                                            child(uId).
+                                            child(firebaseUser.getUid()).
                                             setValue(null);
 
 
                                     removeEventListeners();
-                                    MapsFragment.this.onDestroy();
+
                                     Intent intent = new Intent(context, MapsActivity.class);
                                     MapsActivity.activity.finish();
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -881,7 +903,7 @@ public class MapsFragment extends Fragment implements
             });
         }
 
-        FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
@@ -1114,6 +1136,7 @@ public class MapsFragment extends Fragment implements
         super.onPause();
         if(ratingDialogFragment!=null) {
             ratingDialogFragment.dismiss();
+            removeEventListeners();
         }
     }
 
@@ -1275,7 +1298,13 @@ public class MapsFragment extends Fragment implements
     }
 
     void setTripEndedListener(){
-        FirebaseDatabase.getInstance().getReference().child("EndTrip").child(uId).addValueEventListener(tripEndedListener);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null){
+            return;
+        }
+
+        FirebaseDatabase.getInstance().getReference().child("EndTrip").child(user.getUid()).addValueEventListener(tripEndedListener);
     }
 
     public static class RatingDialog extends DialogFragment {
@@ -1305,7 +1334,14 @@ public class MapsFragment extends Fragment implements
             @Override
             public void onClick(View v) {
                 DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                mDatabase.child("Order").child(uId).setValue(new Order(
+
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                if(user == null){
+                    return;
+                }
+
+                mDatabase.child("Order").child(user.getUid()).setValue(new Order(
                         sourceAddress,
                         destinationAddress,
                         String.valueOf(sourceLatLng.latitude),
@@ -1316,7 +1352,7 @@ public class MapsFragment extends Fragment implements
                         Utils.extractRequiredKey(System.currentTimeMillis())
                 ));
 
-                mDatabase.child("State").child(uId).setValue(Constants.FINDING_CAB_STATE);
+                mDatabase.child("State").child(user.getUid()).setValue(Constants.FINDING_CAB_STATE);
                 // move the souce and destination selection card view up
                 animateSourceDestinatonSelectionLayoutUp();
 
@@ -1331,12 +1367,17 @@ public class MapsFragment extends Fragment implements
     }
 
     void setOnAcceptCallListner(){
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null){
+            return;
+        }
+
         FirebaseDatabase.getInstance().getReference().
                 child("AcceptedOrders").
-                child(uId).
+                child(user.getUid()).
                 addValueEventListener(accepCallListener);
-        Log.e("THis","yes");
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
         if(user == null){
             return;
         }
@@ -1350,7 +1391,7 @@ public class MapsFragment extends Fragment implements
 
                             if(!status){
                                 FirebaseDatabase.getInstance().getReference().child("NotifyDriverAbsence")
-                                        .child(uId).setValue(null);
+                                        .child(user.getUid()).setValue(null);
                                 //cancellOrder
                                // Toast.makeText(getActivity().getApplicationContext(),"No driver Available",Toast.LENGTH_LONG).show();
                                 FirebaseDatabase.getInstance().getReference().removeEventListener(this);
@@ -1381,11 +1422,23 @@ public class MapsFragment extends Fragment implements
     }
 
     void setOnCabArrivedListener(){
-        FirebaseDatabase.getInstance().getReference().child("CabArrived").child(uId).addValueEventListener(cabArrivedListener);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null){
+            return;
+        }
+
+        FirebaseDatabase.getInstance().getReference().child("CabArrived").child(user.getUid()).addValueEventListener(cabArrivedListener);
     }
 
     void setOnTripStartedListener(){
-        FirebaseDatabase.getInstance().getReference().child("StartTrip").child(uId).addValueEventListener(tripStartedListener);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null){
+            return;
+        }
+
+        FirebaseDatabase.getInstance().getReference().child("StartTrip").child(user.getUid()).addValueEventListener(tripStartedListener);
     }
 
     void showPathBetweenCabAndPassenger(LatLng currentCabLatLng,LatLng passengerLatLng){
@@ -2053,7 +2106,13 @@ public class MapsFragment extends Fragment implements
                                     Log.v("CabLatLng:", " NULL");
                                 }
                                 if (!sourceLatLngRetrieved) {
-                                    FirebaseDatabase.getInstance().getReference().child("Order").child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                                    if(user == null){
+
+                                    }
+
+                                    FirebaseDatabase.getInstance().getReference().child("Order").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             if (dataSnapshot.exists()) {
@@ -2078,7 +2137,7 @@ public class MapsFragment extends Fragment implements
                                         }
                                     });
 
-                                    FirebaseDatabase.getInstance().getReference().child("Order").child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    FirebaseDatabase.getInstance().getReference().child("Order").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             if (dataSnapshot.exists()) {
@@ -2130,7 +2189,14 @@ public class MapsFragment extends Fragment implements
                             cabLatLng = new LatLng(cabLat, cabLong);
 
                             mTripPathData = new ArrayList<LatLng>();
-                            FirebaseDatabase.getInstance().getReference().child("TripPath").child(uId + driverId).addListenerForSingleValueEvent(new ValueEventListener() {
+
+                            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                            if(user == null){
+                                return;
+                            }
+
+                            FirebaseDatabase.getInstance().getReference().child("TripPath").child(user.getUid() + driverId).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.exists()) {
@@ -2144,7 +2210,7 @@ public class MapsFragment extends Fragment implements
                                                 mTripPathData.add(latLng);
                                             }
                                             final int distanceCoveredInMeters = Utils.getDistanceInMetersFromLatLngData(mTripPathData);
-                                            FirebaseDatabase.getInstance().getReference().child("StartTripTime").child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                            FirebaseDatabase.getInstance().getReference().child("StartTripTime").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                                     long startTime = (Long) dataSnapshot.getValue();
@@ -2204,11 +2270,17 @@ public class MapsFragment extends Fragment implements
         return  accepCallListener;
     }
     private ValueEventListener defineTripEndedListener(){
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null){
+            return null;
+        }
+
         tripEndedListener=new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
-                    FirebaseDatabase.getInstance().getReference().child("EndTrip").child(uId).setValue(null);
+                    FirebaseDatabase.getInstance().getReference().child("EndTrip").child(user.getUid()).setValue(null);
                     removeEventListeners();
                     showRatingDialog();
                 }
@@ -2219,16 +2291,24 @@ public class MapsFragment extends Fragment implements
 
             }
         };
+
         return tripEndedListener;
     }
+
     private ValueEventListener defineCabArrivedListener(){
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null){
+            return null;
+        }
+
         cabArrivedListener=new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.v("CabArrived", " Inside on cab arrived listener");
                 if(dataSnapshot.exists()) {
                     final Order order = dataSnapshot.getValue(Order.class);
-                    FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(uId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if(dataSnapshot.exists()){
@@ -2361,35 +2441,47 @@ public class MapsFragment extends Fragment implements
             FirebaseDatabase.getInstance().getReference().child("DriverLocation").child(driverId).
                     removeEventListener(acceptCallDriverLocationListener);
         }
-        if(uId!=null) {
-            Log.e("dick ptr exception","trip end");
-            FirebaseDatabase.getInstance().getReference().child("CabArrived").child(uId).
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null){
+            return;
+        }
+
+        if(user.getUid()!=null) {
+            FirebaseDatabase.getInstance().getReference().child("CabArrived").child(user.getUid()).
                     removeEventListener(cabArrivedListener);
-            FirebaseDatabase.getInstance().getReference().child("StartTrip").child(uId).
+            FirebaseDatabase.getInstance().getReference().child("StartTrip").child(user.getUid()).
                     removeEventListener(tripStartedListener);
             FirebaseDatabase.getInstance().getReference().
                     child("AcceptedOrders").
-                    child(uId).
+                    child(user.getUid()).
                     removeEventListener(accepCallListener);
-            FirebaseDatabase.getInstance().getReference().child("EndTrip").child(uId).
+            FirebaseDatabase.getInstance().getReference().child("EndTrip").child(user.getUid()).
                     removeEventListener(tripEndedListener);
         }
 
 
     }
     public void cancellTrip(){
-        if(uId!=null) {
-            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(uId).setValue(null);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null){
+            return;
+        }
+
+        if(user.getUid()!=null) {
+            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).setValue(null);
         }
 
         if(driverId!=null) {
             FirebaseDatabase.getInstance().getReference().
                     child("CanceledTripsServer").
-                    child(uId).
+                    child(user.getUid()).
                     setValue(driverId);
             FirebaseDatabase.getInstance().getReference().
                     child("CanceledTripsDriver").
-                    child(uId).
+                    child(user.getUid()).
                     setValue(driverId);
             FirebaseDatabase.getInstance().getReference().child("DriverState").
                     child(driverId).
@@ -2397,16 +2489,16 @@ public class MapsFragment extends Fragment implements
         }else{
             FirebaseDatabase.getInstance().getReference().
                     child("CanceledTripsServer").
-                    child(uId).
+                    child(user.getUid()).
                     setValue("null");
             FirebaseDatabase.getInstance().getReference().
                     child("CanceledTripsDriver").
-                    child(uId).
+                    child(user.getUid()).
                     setValue("null");
 
         }
         FirebaseDatabase.getInstance().getReference().
-                child("State").child(uId).setValue(Constants.SET_SOURCE_STATE);
+                child("State").child(user.getUid()).setValue(Constants.SET_SOURCE_STATE);
         //1)find driver state 2)if app open don't do anything else send notification
         if(driverId!=null) {
             FirebaseDatabase.getInstance().getReference().child("AppStatus").child(driverId)
