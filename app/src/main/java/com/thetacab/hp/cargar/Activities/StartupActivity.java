@@ -8,8 +8,12 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.BuildConfig;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,7 +22,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.thetacab.hp.cargar.R;
+import com.thetacab.hp.cargar.Utils;
+
+import java.io.IOException;
 
 public class StartupActivity extends AppCompatActivity {
     private static final String TAG = "StartupActivity: ";
@@ -26,6 +34,9 @@ public class StartupActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 235;
     private static final int DATA_ENTRY = 236;
     FirebaseAuth auth;
+
+    TextView mLoadingTV;
+    ProgressBar mLoadingProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +55,32 @@ public class StartupActivity extends AppCompatActivity {
             window.setStatusBarColor(getResources().getColor(R.color.dark_blue));
         }
 
+        if(!Utils.isConnected(getApplicationContext())){
+            mLoadingTV = (TextView) findViewById(R.id.loading_status);
+            mLoadingProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+            mLoadingTV.setText("No Internet :(");
+            mLoadingProgressBar.setVisibility(View.GONE);
+        }
+
         auth = FirebaseAuth.getInstance();
         if(auth.getCurrentUser()!=null){
             final FirebaseUser user  = auth.getCurrentUser();
+
+            final String token = FirebaseInstanceId.getInstance().getToken();
+            if(token == null){
+                try {
+                    FirebaseInstanceId.getInstance().deleteInstanceId();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }else {
+                Log.v(TAG, " Token: "+token);
+                FirebaseDatabase.getInstance().getReference().
+                        child("MapUIDtoInstanceID").
+                        child(user.getUid()).setValue(token);
+            }
+
             if(isUserDataEntered(getApplicationContext(),user.getUid())) {
                 // user data has been entered
                 startCustomerActivity();

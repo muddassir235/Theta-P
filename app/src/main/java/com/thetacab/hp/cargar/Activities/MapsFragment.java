@@ -907,7 +907,14 @@ public class MapsFragment extends Fragment implements
             @Override
             public void onPlaceSelected(final Place place) {
                 if(isSourceLatLngWithinBounds(place.getLatLng())) {
-                    GoogleReverseGeocodingApiWrapper apiWrapper = new GoogleReverseGeocodingApiWrapper(DIRECTION_API_KEY);
+                    GoogleReverseGeocodingApiWrapper apiWrapper = new GoogleReverseGeocodingApiWrapper(DIRECTION_API_KEY,getActivity());
+                    apiWrapper.setBackConnectionListener(new GoogleReverseGeocodingApiWrapper.OnBadConnectionListener() {
+                        @Override
+                        public void onConnectionFailed() {
+                            mSourceProgressBar.setVisibility(View.GONE);
+                            mDestinationProgressBar.setVisibility(View.GONE);
+                        }
+                    });
                     apiWrapper.setLatLng(place.getLatLng()).requestAddress().setOnAddressRetrievedListener(new GoogleReverseGeocodingApiWrapper.OnAddressRetrievedListener() {
                         @Override
                         public void onAddressRetrieved(String resultingAddress) {
@@ -1023,7 +1030,14 @@ public class MapsFragment extends Fragment implements
         destinationAddressAutoCompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(final Place place) {
-                GoogleReverseGeocodingApiWrapper googleReverseGeocodingApiWrapper = new GoogleReverseGeocodingApiWrapper(DIRECTION_API_KEY);
+                GoogleReverseGeocodingApiWrapper googleReverseGeocodingApiWrapper = new GoogleReverseGeocodingApiWrapper(DIRECTION_API_KEY,getActivity());
+                googleReverseGeocodingApiWrapper.setBackConnectionListener(new GoogleReverseGeocodingApiWrapper.OnBadConnectionListener() {
+                    @Override
+                    public void onConnectionFailed() {
+                        mSourceProgressBar.setVisibility(View.GONE);
+                        mDestinationProgressBar.setVisibility(View.GONE);
+                    }
+                });
                 googleReverseGeocodingApiWrapper.setLatLng(place.getLatLng()).requestAddress().setOnAddressRetrievedListener(new GoogleReverseGeocodingApiWrapper.OnAddressRetrievedListener() {
                     @Override
                     public void onAddressRetrieved(String resultingAddress) {
@@ -1508,18 +1522,29 @@ public class MapsFragment extends Fragment implements
                 if(!sourceEntered){
                     if(isInBounds) {
                         mSourceProgressBar.setVisibility(View.VISIBLE);
+                        disableMarkerButton();
                     }
                 }else if(!destinationEntered){
                     mDestinationProgressBar.setVisibility(View.VISIBLE);
+                    disableMarkerButton();
                 }
                 if(isInBounds) {
-                    GoogleReverseGeocodingApiWrapper googleReverseGeocodingApiWrapper = new GoogleReverseGeocodingApiWrapper(DIRECTION_API_KEY);
+                    GoogleReverseGeocodingApiWrapper googleReverseGeocodingApiWrapper = new GoogleReverseGeocodingApiWrapper(DIRECTION_API_KEY,getActivity());
+                    googleReverseGeocodingApiWrapper.setBackConnectionListener(new GoogleReverseGeocodingApiWrapper.OnBadConnectionListener() {
+                        @Override
+                        public void onConnectionFailed() {
+                            mSourceProgressBar.setVisibility(View.GONE);
+                            mDestinationProgressBar.setVisibility(View.GONE);
+                            enableMarkerButton();
+                        }
+                    });
                     googleReverseGeocodingApiWrapper.setLatLng(centerOfMapLatLng).
                             requestAddress().setOnAddressRetrievedListener(new GoogleReverseGeocodingApiWrapper.OnAddressRetrievedListener() {
                         @Override
                         public void onAddressRetrieved(String resultingAddress) {
                             mSourceProgressBar.setVisibility(View.GONE);
                             mDestinationProgressBar.setVisibility(View.GONE);
+                            enableMarkerButton();
                             if (resultingAddress.contains("Islamabad") || resultingAddress.contains("Rawalpindi")) {
                                 if (!sourceEntered && !destinationEntered) {
                                     /**
@@ -1669,6 +1694,28 @@ public class MapsFragment extends Fragment implements
 
             }
         });
+    }
+
+    void disableMarkerButton(){
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                markerButton.setClickable(false);
+                markerButton.setFocusable(false);
+            }
+        },0);
+    }
+
+    void enableMarkerButton(){
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                markerButton.setClickable(true);
+                markerButton.setFocusable(true);
+            }
+        },0);
     }
 
     private boolean isSourceLatLngWithinBounds(LatLng centerOfMapLatLng) {

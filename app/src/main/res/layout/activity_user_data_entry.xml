@@ -7,44 +7,39 @@
     android:background="@drawable/gradient_1"
     tools:context="com.thetacab.hp.cargar.Activities.UserDataEntryActivity">
 
-    <LinearLayout
+
+    <RelativeLayout
         android:id="@+id/data_entry_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:paddingBottom="10dp"
         android:paddingTop="10dp"
         android:elevation="2dp"
         android:background="@color/dark_blue"
-        android:gravity="right|center_vertical"
         >
-        <RelativeLayout
+        <ImageButton
+            android:id="@+id/close_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/activity_horizontal_margin">
-            <Button
-                android:id="@+id/enter_data_button"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="Enter Data"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:background="@drawable/button_background_accent_color"
-                android:textColor="#FFFFFF"
-                />
-            <ProgressBar
-                android:id="@+id/data_entry_progress_bar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:elevation="5dp"
-                android:visibility="gone"
-                style="?android:attr/progressBarStyleSmall"
-                android:indeterminate="true"
-                android:indeterminateTintMode="src_atop"
-                android:indeterminateTint="@color/colorAccent"/>
-        </RelativeLayout>
-    </LinearLayout>
+            android:padding="10dp"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:src="@drawable/close_icon"
+            android:background="#00FFFFFF"
+            android:layout_centerVertical="true"/>
+        <Button
+            android:id="@+id/enter_data_button"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="Make Edits"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:background="@drawable/button_background_accent_color"
+            android:textColor="#FFFFFF"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            />
+    </RelativeLayout>
 
 
     <LinearLayout

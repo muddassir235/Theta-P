@@ -1,7 +1,10 @@
 package com.thetacab.hp.cargar;
 
+import android.content.Context;
 import android.location.*;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -133,6 +136,15 @@ public class Utils {
         }else {
             return VALID;
         }
+    }
+
+    public static boolean isConnected(Context context){
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
     }
 
     public static final int VALID = 2;

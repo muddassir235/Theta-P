@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -43,7 +44,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.cast.TextTrackStyle;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
@@ -68,7 +72,6 @@ public class UserDataEntryActivity extends AppCompatActivity {
     RadioButton mFemaleRadioButton;
 
     EditText mCNIC;
-    ProgressBar mDataEntryProgressBar;
 
     FrameLayout mCNICFL;
 
@@ -79,6 +82,8 @@ public class UserDataEntryActivity extends AppCompatActivity {
 
     ImageButton mAddPIThroughCameraIB;
     ImageButton mAddPIThroughGalleryIB;
+
+    ImageButton mCloseButton;
 
     TextView mPINameTV;
 
@@ -279,6 +284,32 @@ public class UserDataEntryActivity extends AppCompatActivity {
                 });
             }
         });
+
+        mCloseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                close();
+            }
+        });
+    }
+
+
+
+    void close(){
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        AuthUI.getInstance()
+                .signOut(UserDataEntryActivity.this)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // user is now signed out
+                        startActivity(new Intent(getApplicationContext(), StartupActivity.class));
+                        StartupActivity.saveAsDriverOrCustomer(getApplicationContext(), Constants.DONT_KNOW_USER_TYPE);
+                        if(user!=null) {
+                            FirebaseDatabase.getInstance().getReference().child("MapUIDtoInstanceID").child(user.getUid()).setValue(null);
+                        }
+                        finish();
+                    }
+                });
     }
 
     int getPXfromDP(float dps){
@@ -323,7 +354,6 @@ public class UserDataEntryActivity extends AppCompatActivity {
 
             final User[] user = new User[1];
 
-            mDataEntryProgressBar.setVisibility(View.VISIBLE);
             mEnterDataButton.setText("");
 
             progressDialog = new ProgressDialog(this);
@@ -370,6 +400,7 @@ public class UserDataEntryActivity extends AppCompatActivity {
         }else {
             focusView.requestFocus();
         }
+
     }
 
     @Override
@@ -390,7 +421,6 @@ public class UserDataEntryActivity extends AppCompatActivity {
         mGenderChoice = (RadioGroup) findViewById(R.id.customer_gender_sign_up);
         mMaleRadioButton = (RadioButton) findViewById(R.id.male_gender_radio_button);
         mFemaleRadioButton = (RadioButton) findViewById(R.id.female_gender_radio_button);
-        mDataEntryProgressBar = (ProgressBar) findViewById(R.id.data_entry_progress_bar);
         mCNIC = (EditText) findViewById(R.id.cnic);
         mCNICFL = (FrameLayout) findViewById(R.id.cnic_frame_layout);
         mProfileImageRL = (RelativeLayout) findViewById(R.id.profile_image_layout);
@@ -401,6 +431,7 @@ public class UserDataEntryActivity extends AppCompatActivity {
         mPINameTV = (TextView) findViewById(R.id.profile_image_name_text_view);
         mPhoneValidationTV = (TextView) findViewById(R.id.phone_number_validation_text_view);
         mCNICValidationTV = (TextView) findViewById(R.id.cnic_validation_text_view);
+        mCloseButton = (ImageButton) findViewById(R.id.close_button);
     }
 
     @Override

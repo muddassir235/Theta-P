@@ -201,6 +201,7 @@ public class MapsActivity
 
         if (id == R.id.sign_out) {
             // Handle the camera action
+            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             AuthUI.getInstance()
                     .signOut(this)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -208,6 +209,9 @@ public class MapsActivity
                             // user is now signed out
                             startActivity(new Intent(getApplicationContext(), StartupActivity.class));
                             StartupActivity.saveAsDriverOrCustomer(getApplicationContext(), Constants.DONT_KNOW_USER_TYPE);
+                            if(user!=null) {
+                                FirebaseDatabase.getInstance().getReference().child("MapUIDtoInstanceID").child(user.getUid()).setValue(null);
+                            }
                             finish();
                         }
                     });
