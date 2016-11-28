@@ -1,7 +1,9 @@
 package com.thetacab.hp.cargar;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -22,19 +24,30 @@ import java.util.ArrayList;
  */
 public class GoogleReverseGeocodingApiWrapper {
     ArrayList<OnAddressRetrievedListener> listeners;
+    OnBadConnectionListener badConnectionListener;
 
     private String API_KEY;
     private String requestURL;
     private String resultingAddress;
+    Context context;
 
-    public GoogleReverseGeocodingApiWrapper(String API_KEY){
+    public GoogleReverseGeocodingApiWrapper(String API_KEY, Context context){
         this.listeners = new ArrayList<>();
         this.API_KEY = API_KEY;
         requestURL = "https://maps.googleapis.com/maps/api/geocode/json?"+"key="+API_KEY;
+        this.context = context;
     }
 
     public interface OnAddressRetrievedListener{
         void onAddressRetrieved(String resultingAddress);
+    }
+
+    public void setBackConnectionListener(OnBadConnectionListener backConnectionListener){
+        this.badConnectionListener = backConnectionListener;
+    }
+
+    public interface OnBadConnectionListener{
+        void onConnectionFailed();
     }
 
     public void setOnAddressRetrievedListener(OnAddressRetrievedListener onAddressRetrievedListener){
@@ -56,15 +69,28 @@ public class GoogleReverseGeocodingApiWrapper {
 
         @Override
         protected String doInBackground(String... webAddresses) {
-            return getPathFromURL(webAddresses[0]);
+            if (!Utils.isConnected(context)) {
+                return "";
+            }else {
+                return getPathFromURL(webAddresses[0]);
+            }
         }
 
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             resultingAddress = result;
-            for (OnAddressRetrievedListener listener: listeners){
-                listener.onAddressRetrieved(result);
+            if(result.equals("")){
+                if(context!=null) {
+                    Toast.makeText(context.getApplicationContext(), "Address couldn't be retrieved please check your connection", Toast.LENGTH_SHORT).show();
+                }
+                if(badConnectionListener!=null){
+                    badConnectionListener.onConnectionFailed();
+                }
+            }else {
+                for (OnAddressRetrievedListener listener : listeners) {
+                    listener.onAddressRetrieved(result);
+                }
             }
 
         }

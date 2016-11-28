@@ -21,6 +21,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
@@ -57,16 +59,15 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
      */
     private void sendRegistrationToServer(String token) {
         // Add custom implementation, as needed.
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("UID-SharedPref",0);
-        String uId = sharedPref.getString("UID",null);
-        if(uId!=null){
-            FirebaseDatabase.
-                    getInstance().
-                    getReference().
-                    child("MapUIDtoInstanceID").
-                    child(uId).
-                    setValue(token);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user == null){
+            return;
         }
-
+        FirebaseDatabase.
+                getInstance().
+                getReference().
+                child("MapUIDtoInstanceID").
+                child(user.getUid()).
+                setValue(token);
     }
 }

@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -67,6 +69,12 @@ public class SendNotif{
 
     private void retriveData(){
         final String[] appStatus = new String[1];
+
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null){
+            return;
+        }
         if(notifType == CAB_FOUND_NOTIF || notifType == CAB_ARRIVED_NOTIF){
             final String[] driverName = new String[1];
             FirebaseDatabase.getInstance().getReference().child("AppStatus").child(recieverId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -75,7 +83,7 @@ public class SendNotif{
                     if (dataSnapshot.exists()) {
                         appStatus[0] =String.valueOf((Long) dataSnapshot.getValue());
                         if (Integer.valueOf(appStatus[0]) == 0) {
-                            FirebaseDatabase.getInstance().getReference().child("Customers").child(getUid()).child("Name").addListenerForSingleValueEvent(new ValueEventListener() {
+                            FirebaseDatabase.getInstance().getReference().child("Customers").child(user.getUid()).child("Name").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.exists()) {
@@ -202,13 +210,6 @@ public class SendNotif{
         return this;
     }
 
-    String getUid(){
-        SharedPreferences sharedPref = context.getSharedPreferences("UID-SharedPref",0);
-        String uid = sharedPref.getString("UID",null);
-        Log.v("User Id: ", uid);
-        return uid;
-    }
-
     public class SendNotification extends AsyncTask<String,String,Void> {
 
         @Override
@@ -220,6 +221,11 @@ public class SendNotif{
 
     private void sendNofif(String notifType,String recieverInstanceId,String title, String message) {
         try {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if(user == null){
+                return;
+            }
+
             URL url = new URL("https://fcm.googleapis.com/fcm/send");
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
@@ -229,7 +235,7 @@ public class SendNotif{
             JSONObject dataObject = new JSONObject();
             dataObject.put("title",title);
             dataObject.put("body", message);
-            dataObject.put("senderId",getUid());
+            dataObject.put("senderId",user.getUid());
             dataObject.put("notifType",notifType);
             jsonObject.put("notification",dataObject);
 
