@@ -169,6 +169,7 @@ public class MapsFragment extends Fragment implements
     private ValueEventListener tripEndedListener;
     private ValueEventListener cabArrivedListener;
     private ValueEventListener tripStartedListener;
+    private ValueEventListener notifyDriverAbsenceListener;
     /////////////////////////////
     View rootView;
 
@@ -1254,42 +1255,7 @@ public class MapsFragment extends Fragment implements
         }
         //attach listener which server uses to notify if call has been cancelled and implement canceltripbutton logic here
         FirebaseDatabase.getInstance().getReference().child("NotifyDriverAbsence").child(user.getUid()).
-                addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()){
-                            boolean status= (boolean) dataSnapshot.getValue();
-
-                            if(!status){
-                                FirebaseDatabase.getInstance().getReference().child("NotifyDriverAbsence")
-                                        .child(user.getUid()).setValue(null);
-                                //cancellOrder
-                               // Toast.makeText(getActivity().getApplicationContext(),"No driver Available",Toast.LENGTH_LONG).show();
-                                FirebaseDatabase.getInstance().getReference().removeEventListener(this);
-                                final AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.activity, R.style.MyAlertDialogStyle).create();
-                                alertDialog.setTitle("Alert");
-                                alertDialog.setMessage("We are sorry, there is no driver available in your area currently :(");
-                                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.dismiss();
-                                                if(alertDialog!=null || alertDialog.isShowing()){
-                                                alertDialog.dismiss();
-                                                }
-                                                cancellTrip();
-                                            }
-                                        });
-                                alertDialog.show();
-
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                addValueEventListener(notifyDriverAbsenceListener);
     }
 
     void setOnCabArrivedListener(){
@@ -1963,6 +1929,52 @@ public class MapsFragment extends Fragment implements
         defineTripEndedListener();
         defineCabArrivedListener();
         defineTripStartedListener();
+        defineNotifyDriverAbsenceListener();
+    }
+    private ValueEventListener defineNotifyDriverAbsenceListener(){
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user == null){
+            return null;
+        }
+        notifyDriverAbsenceListener=new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    boolean status= (boolean) dataSnapshot.getValue();
+
+                    if(!status){
+                        FirebaseDatabase.getInstance().getReference().child("NotifyDriverAbsence")
+                                .child(user.getUid()).setValue(null);
+                        //cancellOrder
+                        // Toast.makeText(getActivity().getApplicationContext(),"No driver Available",Toast.LENGTH_LONG).show();
+                        //FirebaseDatabase.getInstance().getReference().removeEventListener(this);
+                        final AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.activity, R.style.MyAlertDialogStyle).create();
+                        alertDialog.setTitle("Alert");
+                        alertDialog.setMessage("We are sorry, there is no driver available in your area currently :(");
+                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        if(alertDialog!=null || alertDialog.isShowing()){
+                                            alertDialog.dismiss();
+                                        }
+                                        cancellTrip();
+                                    }
+                                });
+                        alertDialog.show();
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        return notifyDriverAbsenceListener;
     }
     private ValueEventListener defineAcceptCallListener(){
         accepCallListener=new ValueEventListener() {
@@ -2367,6 +2379,8 @@ public class MapsFragment extends Fragment implements
                     removeEventListener(accepCallListener);
             FirebaseDatabase.getInstance().getReference().child("EndTrip").child(user.getUid()).
                     removeEventListener(tripEndedListener);
+            FirebaseDatabase.getInstance().getReference().child("NotifyDriverAbsence").child(user.getUid()).
+                    removeEventListener(notifyDriverAbsenceListener);
         }
 
 
