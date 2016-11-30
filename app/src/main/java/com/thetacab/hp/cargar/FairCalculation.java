@@ -1,5 +1,7 @@
 package com.thetacab.hp.cargar;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -9,23 +11,17 @@ import com.google.firebase.database.ValueEventListener;
  * Created by hp on 7/17/2016.
  */
 public class FairCalculation {
-    int cabType;
-    int bikeBaseRate;
-    int bikeDistanceCoefficient;
-    int bikeTimeCoefficient;
-    int carBaseRate;
-    int carDistanceCoefficent;
-    int carTimeCoefficient;
-
-    String bikeBaseRateKey = "bikeBaseRate";
-    String bikeDistanceCoefficientKey = "bikeDistanceCoefficient";
-    String bikeTimeCoefficientKey = "bikeTimeCoefficient";
-    String carBaseRateKey = "carBaseRate";
-    String carDistanceCoefficientKey = "carDistanceCoefficient";
-    String carTimeCoefficientKey = "carTimeCoefficient";
+    private int cabType;
+    private int bikeBaseRate;
+    private int bikeDistanceCoefficient;
+    private int bikeTimeCoefficient;
+    private int carBaseRate;
+    private int carDistanceCoefficent;
+    private int carTimeCoefficient;
 
     public FairCalculation(int cabType){
         this.cabType = cabType;
+        String bikeBaseRateKey = "bikeBaseRate";
         FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(bikeBaseRateKey).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -39,6 +35,7 @@ public class FairCalculation {
 
             }
         });
+        String bikeDistanceCoefficientKey = "bikeDistanceCoefficient";
         FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(bikeDistanceCoefficientKey).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -52,6 +49,7 @@ public class FairCalculation {
 
             }
         });
+        String bikeTimeCoefficientKey = "bikeTimeCoefficient";
         FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(bikeTimeCoefficientKey).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -65,6 +63,7 @@ public class FairCalculation {
 
             }
         });
+        String carBaseRateKey = "carBaseRate";
         FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(carBaseRateKey).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -78,6 +77,7 @@ public class FairCalculation {
 
             }
         });
+        String carDistanceCoefficientKey = "carDistanceCoefficient";
         FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(carDistanceCoefficientKey).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -91,6 +91,7 @@ public class FairCalculation {
 
             }
         });
+        String carTimeCoefficientKey = "carTimeCoefficient";
         FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(carTimeCoefficientKey).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -105,6 +106,12 @@ public class FairCalculation {
             }
         });
 
+        bikeBaseRate = 20;
+        bikeDistanceCoefficient = 15;
+        bikeTimeCoefficient = 0;
+        carBaseRate = 80;
+        carDistanceCoefficent = 16;
+        carTimeCoefficient = 2;
     }
 
     public int getFairEstimate(int totalDistanceInM, int etaInSeconds){
@@ -113,19 +120,26 @@ public class FairCalculation {
         double etaInMinutes = ((double) etaInSeconds)/((double)60);
         int Mins = (int) (etaInMinutes + 0.5);
 
+        int fairEstimate = 50;
+
         if(cabType == 0){
             if(KMs<=2){
-                return (2*bikeDistanceCoefficient)+(Mins*bikeTimeCoefficient)+bikeBaseRate;
-            }else if(KMs>=20){
-                return (20*bikeDistanceCoefficient)+(Mins*bikeTimeCoefficient)+bikeBaseRate;
+                fairEstimate = (2*bikeDistanceCoefficient)+(Mins*bikeTimeCoefficient)+bikeBaseRate;
+            }else if(KMs>20){
+                fairEstimate = (20*bikeDistanceCoefficient)+(Mins*bikeTimeCoefficient)+bikeBaseRate;
             }else {
-                return (KMs*bikeDistanceCoefficient)+(Mins*bikeTimeCoefficient)+bikeBaseRate;
+                fairEstimate = (KMs*bikeDistanceCoefficient)+(Mins*bikeTimeCoefficient)+bikeBaseRate;
             }
         }else if(cabType ==1){
-            return (KMs*carDistanceCoefficent)+(Mins*carTimeCoefficient)+carBaseRate;
+            fairEstimate = (KMs*carDistanceCoefficent)+(Mins*carTimeCoefficient)+carBaseRate;
         }else {
-            return -1;
+            fairEstimate = 50;
         }
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(fairEstimate<50){
+            fairEstimate = 50;
+        }
+        return fairEstimate;
     }
 
     public void setCabType(int cabType){

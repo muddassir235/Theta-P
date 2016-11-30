@@ -1,7 +1,5 @@
 package com.thetacab.hp.cargar;
 
-import android.app.ProgressDialog;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -10,19 +8,14 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.thetacab.hp.cargar.Activities.MapsFragment;
 
 import org.json.JSONArray;
@@ -36,7 +29,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
@@ -45,9 +37,8 @@ import java.util.ListIterator;
 public class GoogleDirectionsApiWrapper {
     ArrayList<OnDirectionsRetrievedListener> listeners;
     ArrayList<OnCabTypeChangedListener> cabtypeListeners;
-     ProgressDialog progress;
+
     boolean animateMapToShowFullPath;
-    public boolean removeDialog;
     String API_KEY;
     String source;
     String destination;
@@ -65,20 +56,8 @@ public class GoogleDirectionsApiWrapper {
     int totalTimeInSeconds;
     TextView fairEstimateTV;
     TextView etaTV;
+    FairCalculation mFairCalculator;
     int cabType;
-    int bikeBaseRate;
-    int bikeDistanceCoefficient;
-    int bikeTimeCoefficient;
-    int carBaseRate;
-    int carDistanceCoefficent;
-    int carTimeCoefficient;
-
-    String bikeBaseRateKey = "bikeBaseRate";
-    String bikeDistanceCoefficientKey = "bikeDistanceCoefficient";
-    String bikeTimeCoefficientKey = "bikeTimeCoefficient";
-    String carBaseRateKey = "carBaseRate";
-    String carDistanceCoefficientKey = "carDistanceCoefficient";
-    String carTimeCoefficientKey = "carTimeCoefficient";
 
     MapsFragment mapsFragment;
 
@@ -94,14 +73,7 @@ public class GoogleDirectionsApiWrapper {
         animateMapToShowFullPath = true;
         removePath = false;
         this.mapsFragment = fragment;
-        cabType=1;
-        listenForFairCalculationParams();
-        bikeBaseRate = 20;
-        bikeDistanceCoefficient = 15;
-        bikeTimeCoefficient = 0;
-        carBaseRate = 80;
-        carDistanceCoefficent = 16;
-        carTimeCoefficient = 2;
+        mFairCalculator = new FairCalculation(1);
     }
 
     public GoogleDirectionsApiWrapper setShow20Warning(boolean show){
@@ -135,8 +107,6 @@ public class GoogleDirectionsApiWrapper {
         }
     }
 
-
-
     public GoogleDirectionsApiWrapper setEtaTV(TextView tv){
         this.etaTV = tv;
         return this;
@@ -160,7 +130,7 @@ public class GoogleDirectionsApiWrapper {
                                 " in "+
                                 totalTimeString+
                                 " will cost Rs. "+
-                                getFairEstimate(totalDitanceInMeters,totalTimeInSeconds)
+                                mFairCalculator.getFairEstimate(totalDitanceInMeters,totalTimeInSeconds)
 
                 );
             }
@@ -242,146 +212,31 @@ public class GoogleDirectionsApiWrapper {
         return this;
     }
 
-    private void listenForFairCalculationParams(){
-        FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(bikeBaseRateKey).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    bikeBaseRate = Integer.valueOf(String.valueOf((Long) dataSnapshot.getValue()));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(bikeDistanceCoefficientKey).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    bikeDistanceCoefficient = Integer.valueOf(String.valueOf((Long) dataSnapshot.getValue()));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(bikeTimeCoefficientKey).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    bikeTimeCoefficient = Integer.valueOf(String.valueOf((Long) dataSnapshot.getValue()));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(carBaseRateKey).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    carBaseRate = Integer.valueOf(String.valueOf((Long) dataSnapshot.getValue()));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(carDistanceCoefficientKey).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    carDistanceCoefficent =Integer.valueOf(String.valueOf((Long) dataSnapshot.getValue()));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        FirebaseDatabase.getInstance().getReference().child("FairCalculationParams").child(carTimeCoefficientKey).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    carTimeCoefficient = Integer.valueOf(String.valueOf((Long) dataSnapshot.getValue()));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-    }
-
-    int getFairEstimate(int totalDistanceInM, int etaInSeconds){
-        double distanceInKm = ((double)totalDistanceInM)/((double) 1000);
-        int KMs = (int) (distanceInKm+0.5);
-        double etaInMinutes = ((double) etaInSeconds)/((double)60);
-        int Mins = (int) (etaInMinutes + 0.5);
-
-        int fairEstimate = 50;
-
-        if(cabType == 0){
-            if(KMs<=2){
-                fairEstimate = (2*bikeDistanceCoefficient)+(Mins*bikeTimeCoefficient)+bikeBaseRate;
-            }else if(KMs>20){
-                if(show20Warning) {
-                    mapsFragment.showDistanceNotSupportedDialog();
-                    show20Warning = false;
-                }
-                fairEstimate = (20*bikeDistanceCoefficient)+(Mins*bikeTimeCoefficient)+bikeBaseRate;
-            }else {
-                fairEstimate = (KMs*bikeDistanceCoefficient)+(Mins*bikeTimeCoefficient)+bikeBaseRate;
-            }
-        }else if(cabType ==1){
-            fairEstimate = (KMs*carDistanceCoefficent)+(Mins*carTimeCoefficient)+carBaseRate;
-        }else {
-            fairEstimate = 50;
-        }
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(fairEstimate<50){
-            fairEstimate = 50;
-        }
-        return fairEstimate;
-    }
-
-    String getFairEstimateString(){
-        return fairEstimateString;
-    }
-
-    String getEtaString(){
-        return etaString;
-    }
-
     public void drawPathOnMap(){
         setOnDirectionsRetrivedListener(new OnDirectionsRetrievedListener() {
             @Override
             public void onDirectionsRetrieved(CompletePathData completePathData) {
                 listeners.clear();
                 if(completePathData.getStartLocation()!=null) {
-                    if (removeDialog) {
-                        removeProcessDialog();
-                    }
+
                     Log.e("driver drawing map", completePathData.getEndLocation().toString());
 
                     totalDistanceString = completePathData.getTotalDistance();
                     totalDitanceInMeters = completePathData.getTotal_distance_in_m();
                     totalTimeInSeconds = completePathData.getEta_in_seconds();
                     totalTimeString = completePathData.getEta();
-                    int fairEstimate = getFairEstimate(
+                    int fairEstimate = mFairCalculator.getFairEstimate(
                             completePathData.getTotal_distance_in_m(), completePathData.getEta_in_seconds()
                     );
+
+                    double distanceInKm = ((double)completePathData.getTotal_distance_in_m())/((double) 1000);
+                    int KMs = (int) (distanceInKm+0.5);
+
+                    if(KMs>20 && show20Warning){
+                        mapsFragment.showDistanceNotSupportedDialog();
+                        show20Warning = false;
+                    }
+
                     fairEstimateString = completePathData.getTotalDistance() +
                             " in " + completePathData.getEta() +
                             " will cost Rs. " + fairEstimate;
@@ -482,10 +337,6 @@ public class GoogleDirectionsApiWrapper {
         });
     }
 
-    public void refreshPath(String source){
-
-    }
-
     private static CompletePathData getPathFromURL(String link){
         String responseString;
         CompletePathData completePathData = new CompletePathData();
@@ -567,15 +418,7 @@ public class GoogleDirectionsApiWrapper {
         Log.v("PathString"," "+responseString);
         return completePathData;
     }
-    public void removeProcessDialog(){
-        progress.dismiss();
-        removeDialog=false;
-    }
-    public GoogleDirectionsApiWrapper addProcessDialog(ProgressDialog dialog){
-        removeDialog=true;
-        progress=dialog;
-        return this;
-    }
+
     private static String convertStreamToString(InputStream is) {
         java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "";
@@ -591,17 +434,6 @@ public class GoogleDirectionsApiWrapper {
         @Override
         protected void onPostExecute(CompletePathData result) {
             super.onPostExecute(result);
-
-//            List<String> s = new ArrayList<String>();
-//
-//            for(String a : args)
-//                s.add(a);
-//
-//            ListIterator<String> it = s.listIterator();
-//            if(it.hasNext()) {
-//                String item = it.next();
-//            }
-
 
             for(ListIterator<OnDirectionsRetrievedListener> it = listeners.listIterator(); it.hasNext(); ){
                 OnDirectionsRetrievedListener aListener = it.next();

@@ -1,15 +1,19 @@
 package com.thetacab.hp.cargar;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.location.*;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ArrayAdapter;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
@@ -17,6 +21,39 @@ import java.util.ArrayList;
  * Created by hp on 7/13/2016.
  */
 public class Utils {
+
+    static FirebaseUser user;
+
+    public static FirebaseUser getCurrUser(){
+        if(user == null){
+            user = FirebaseAuth.getInstance().getCurrentUser();
+            return user;
+        }else {
+            return user;
+        }
+    }
+
+    public static String getUid(){
+        if(user == null){
+            user = FirebaseAuth.getInstance().getCurrentUser();
+            if(user == null){
+                return null;
+            }else{
+                return user.getUid();
+            }
+        }else {
+            return user.getUid();
+        }
+    }
+
+    public static float fromDpToPx(float dp) {
+
+        try {
+            return dp * Resources.getSystem().getDisplayMetrics().density;
+        } catch (Exception e) {
+            return dp;
+        }
+    }
 
     public static int getDistanceInMetersFromLatLngData(ArrayList<LatLng> data){
         int meters=0;
@@ -145,6 +182,15 @@ public class Utils {
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
+    }
+
+    public static int getStatusBarHeight(Context context) {
+        int result = 0;
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = context.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
     public static final int VALID = 2;

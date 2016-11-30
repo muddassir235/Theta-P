@@ -484,7 +484,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
 
         }else if(currentUser.type.equals("customer")){
-            if(TextUtils.isEmpty(mHelpNumberET.getText().toString())){
+            if(TextUtils.isEmpty(mHelpNumberET.getText().toString()) || Utils.phoneNumberIsValid(mHelpNumberET.getText().toString())!=Utils.VALID){
                 allDataEntered = false;
                 mHelpNumberET.setError("Please enter a valid phone number");
                 focusView = mHelpNumberET;
@@ -492,7 +492,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 currentUser.helpNumber = mHelpNumberET.getText().toString();
             }
 
-            if(TextUtils.isEmpty(mCNICET.getText().toString())){
+            if(TextUtils.isEmpty(mCNICET.getText().toString()) || Utils.isCNICValid(mCNICET.getText().toString())!=Utils.VALID){
                 allDataEntered = false;
                 mCNICET.setError("Please enter a valid CNIC number");
                 focusView = mCNICET;
@@ -500,7 +500,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 currentUser.cNIC = mCNICET.getText().toString();
             }
 
-            if(TextUtils.isEmpty(mPhone.getText().toString())){
+            if(TextUtils.isEmpty(mPhone.getText().toString()) || Utils.phoneNumberIsValid(mPhone.getText().toString()) != Utils.VALID){
                 allDataEntered = false;
                 mPhone.setError("Please enter a valid phone number");
                 focusView = mPhone;

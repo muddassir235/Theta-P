@@ -3,18 +3,12 @@ package com.thetacab.hp.cargar.Activities;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
@@ -30,10 +24,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.telephony.SmsManager;
-import android.text.InputType;
-import android.text.Layout;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,32 +44,25 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.hujiaweibujidao.wava.Techniques;
 import com.github.hujiaweibujidao.wava.YoYo;
-import com.google.android.gms.appindexing.AppIndexApi;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.vision.text.Text;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -87,6 +71,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import com.thetacab.hp.cargar.Animations;
 import com.thetacab.hp.cargar.Constants;
+import com.thetacab.hp.cargar.Dialogs.RatingDialog;
 import com.thetacab.hp.cargar.DriverLocation;
 import com.thetacab.hp.cargar.FairCalculation;
 import com.thetacab.hp.cargar.GoogleDirectionsApiWrapper;
@@ -107,30 +92,19 @@ import java.util.HashMap;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MapsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MapsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MapsFragment extends Fragment implements
         OnMapReadyCallback, LocationListener,
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+
     private static final String TAG = "MapsFragment";
-    private static boolean animateCurrLocationButton;
+    private boolean animateCurrLocationButton;
 
     private GoogleMap mMap;
-    static Context context;
-    static MapsFragment fragment;
+    Context context;
+    MapsFragment fragment;
 
-    static GoogleDirectionsApiWrapper googleDirectionsApiWrapper;
+    GoogleDirectionsApiWrapper googleDirectionsApiWrapper;
     GoogleApiClient mGoogleApiClient;
     android.location.Location mLastLocation;
 
@@ -138,8 +112,8 @@ public class MapsFragment extends Fragment implements
     int noOfAnimationsRunning;
     boolean movingUpAnimation;
     boolean movingDownAnimation;
-    static boolean sourceEntered;
-    static boolean destinationEntered;
+    boolean sourceEntered;
+    boolean destinationEntered;
     boolean canTapSelectionIcon;
     boolean driverIsArriving;
     boolean sourceLatLngRetrieved;
@@ -151,7 +125,7 @@ public class MapsFragment extends Fragment implements
     private LatLng sourceLatLng;
     private LatLng destinationLatLng;
     private Marker sourceMarker;
-    private static Marker destinationMarker;
+    private Marker destinationMarker;
     private Marker cabMarker;
     public LatLng centerOfMapLatLng;
     private String DIRECTION_API_KEY;
@@ -163,38 +137,39 @@ public class MapsFragment extends Fragment implements
     private LocationRequest mLocationRequest;
     private final String phoneNo = "+923330627462";
     private int currentCabSelection;
+
     //AcceptCallListener
     private ValueEventListener accepCallListener;
     private ValueEventListener acceptCallDriverLocationListener;
     private ValueEventListener tripEndedListener;
     private ValueEventListener cabArrivedListener;
     private ValueEventListener tripStartedListener;
+
     /////////////////////////////
     View rootView;
-
 
     //Views
     @InjectView(R.id.notify_selection_toast_text_view)
     TextView notifySelectionToastTV;
-    static ImageButton currLocButton;
+    ImageButton currLocButton;
     @InjectView(R.id.bike_selection_image_button)
     ImageButton bikeSelectionIB;
     @InjectView(R.id.cab_selection_card_view)
     CardView cabSelectionCV;
     @InjectView(R.id.cab_type_selection_layout)
     LinearLayout cabSelectionLayout;
-    static CardView markerButton;
-    static CardView searchSouceCardView;
-    static CardView searchDestinationCardView;
+    CardView markerButton;
+    CardView searchSouceCardView;
+    CardView searchDestinationCardView;
     @InjectView(R.id.source_destination_selection_layout)
     CardView sourceDestinationSelectionLayoutCV;
-    static TextView markerButtonTextView;
-    static ImageView markerAtCenterOfMapIV;
+    TextView markerButtonTextView;
+    ImageView markerAtCenterOfMapIV;
     @InjectView(R.id.source_bar_cross_image_button)
     ImageButton sourceBarCrossIB;
-    static ImageButton destinationBarCrossIB;
-    static Button requestCabButton;
-    static TextView fairQuoteTV;
+    ImageButton destinationBarCrossIB;
+    Button requestCabButton;
+    TextView fairQuoteTV;
     CardView tripCodeCV;
     TextView tripCodeTV;
     ImageView vehicleImageIV;
@@ -233,14 +208,10 @@ public class MapsFragment extends Fragment implements
     @InjectView(R.id.driver_number_of_ratings_text_view)
     TextView mDriverTotalRatingsTV;
 
-    static DialogFragment ratingDialogFragment;
+    DialogFragment ratingDialogFragment;
 
-    static PlaceAutocompleteFragment sourceAddressAutocCompleteFragment;
-    static PlaceAutocompleteFragment destinationAddressAutoCompleteFragment;
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    PlaceAutocompleteFragment sourceAddressAutocCompleteFragment;
+    PlaceAutocompleteFragment destinationAddressAutoCompleteFragment;
 
     private OnFragmentInteractionListener mListener;
 
@@ -248,31 +219,9 @@ public class MapsFragment extends Fragment implements
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MapsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MapsFragment newInstance(String param1, String param2) {
-        MapsFragment fragment = new MapsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
         context = getActivity().getApplicationContext();
     }
 
@@ -290,16 +239,12 @@ public class MapsFragment extends Fragment implements
         setupGooglePlacesAPI();
         googleDirectionsApiWrapper.setEtaTV(etaOfCabTV);
         googleDirectionsApiWrapper.setFairEstimateTV(fairQuoteTV);
-        setStatusBarTranslucent(true, rootView);
+        setStatusBarTranslucent(rootView);
         getLocationPermissions();
         setTripEndedListener();
         markerButton.setCardBackgroundColor(Color.parseColor("#ddF9BA32"));
-        checkingLayout(markerButton);
         launchAppropriateAppState();
         return rootView;
-    }
-
-    private void checkingLayout(View v) {
     }
 
     @Override
@@ -326,38 +271,42 @@ public class MapsFragment extends Fragment implements
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        if(ratingDialogFragment!=null) {
+            ratingDialogFragment.dismiss();
+            removeEventListeners();
+        }
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         setTripEndedListener();
-        SharedPreferences sharedPref = getActivity().getSharedPreferences("UID-SharedPref", 0);
-        String uId = sharedPref.getString("UID", null);
-        if (uId != null) {
-            FirebaseDatabase.getInstance().getReference().child("AppStatus").child(uId).setValue(1);
-        }
+
+        if(Utils.getCurrUser() == null){return;}
+
+        FirebaseDatabase.getInstance().getReference()
+                .child("AppStatus")
+                .child(Utils.getUid())
+                .setValue(1);
     }
 
 
     void getLocationPermissions() {
-        // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(getActivity(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-
             requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     Constants.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-
-            // MY_PERMISSIONS_REQUEST_BLUETOOTH is an
-            // app-defined int constant. The callback method gets the
-            // result of the request.
-
         }
     }
 
-    protected void setStatusBarTranslucent(boolean makeTranslucent, View rootView) {
+    protected void setStatusBarTranslucent(View rootView) {
         View v = rootView.findViewById(R.id.map);
         View v1 = rootView.findViewById(R.id.source_destination_selection_layout);
         if (v != null && v1 != null) {
-            int paddingTop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? getStatusBarHeight() : 0;
+            int paddingTop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Utils.getStatusBarHeight(context) : 0;
             RelativeLayout.LayoutParams mapLayoutParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
             RelativeLayout.LayoutParams searchCardLayoutParams = (RelativeLayout.LayoutParams) v1.getLayoutParams();
             mapLayoutParams.topMargin -= paddingTop;
@@ -367,7 +316,7 @@ public class MapsFragment extends Fragment implements
             int paddingTopOfETATV = etaOfCabTV.getPaddingTop();
             int paddingBottomOfETATV = etaOfCabTV.getPaddingBottom();
 
-            paddingTopOfETATV += getStatusBarHeight();
+            paddingTopOfETATV += Utils.getStatusBarHeight(context);
             etaOfCabTV.setPadding(
                     paddingLeftOfETATV,
                     paddingTopOfETATV,
@@ -388,30 +337,20 @@ public class MapsFragment extends Fragment implements
         tintManager.setTintColor(Color.parseColor("#007DC0"));
     }
 
-    public int getStatusBarHeight() {
-        int result = 0;
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
-    }
+
 
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
             mLastLocation = location;
-            Log.v("LocationChanged", " Entered On location changed");
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-            if(user==null){
+            if(Utils.getCurrUser()==null){
                 return;
             }
 
             FirebaseDatabase.getInstance().getReference().child("PassengerLocation").
-                    child(user.getUid()).child("lat").setValue(location.getLatitude());
+                    child(Utils.getUid()).child("lat").setValue(location.getLatitude());
             FirebaseDatabase.getInstance().getReference().child("PassengerLocation").
-                    child(user.getUid()).child("lng").setValue(location.getLongitude());
+                    child(Utils.getUid()).child("lng").setValue(location.getLongitude());
         }
     }
 
@@ -422,39 +361,25 @@ public class MapsFragment extends Fragment implements
         Log.v(TAG, " code callback: "+requestCode);
         switch (requestCode) {
             case Constants.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    // permission was granted, yay! Do the
-                    // locations-related task you need to do.
+                    // permission was granted
                     mGoogleApiClient.disconnect();
                     mGoogleApiClient.connect();
-
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                 }
-                return;
             }
-
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.v("GoogleApiClient: ", "Connection Failed. Trying to reconnect");
         mGoogleApiClient.connect();
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.v("GoogleApiClient: ", "Connection Suspended. Trying to reconnect");
         mGoogleApiClient.connect();
     }
 
@@ -467,14 +392,7 @@ public class MapsFragment extends Fragment implements
          */
         //startLocationUpdates();
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
             getLocationPermissions();
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
@@ -493,14 +411,6 @@ public class MapsFragment extends Fragment implements
             mGoogleApiClient.connect();
             Log.e("Location: ", " Location was null");
         }
-    }
-
-
-    protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     void initializeFields(){
@@ -526,6 +436,9 @@ public class MapsFragment extends Fragment implements
     void launchAppropriateAppState(){
         Log.v("AppState: ",""+currentAppState);
         Log.v("MapsActivity: ","Launch Appropriate App State");
+
+        if(Utils.getCurrUser() == null){return;}
+
         if(currentAppState == 1){
             // do nothing
         }else if(currentAppState == Constants.FINDING_CAB_STATE){
@@ -549,9 +462,8 @@ public class MapsFragment extends Fragment implements
                     driverCardHolderFL,cancelTripButton
             );
             Animations.remove(findCabAnimView);
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(Utils.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(dataSnapshot.exists()) {
@@ -638,9 +550,7 @@ public class MapsFragment extends Fragment implements
             );
             Animations.remove(findCabAnimView);
 
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(Utils.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(dataSnapshot.exists()) {
@@ -695,20 +605,6 @@ public class MapsFragment extends Fragment implements
                                         liscenseNoTV.setText(driver.licsencePlateNumber);
                                     }
 
-//                                    FirebaseDatabase.getInstance().getReference().child("Orders").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-//                                        @Override
-//                                        public void onDataChange(DataSnapshot dataSnapshot) {
-//                                            if(dataSnapshot.exists()){
-//                                                Order order = dataSnapshot.getValue(Order.class);
-//                                                tripCodeTV.setText(order.tripCode);
-//                                            }
-//                                        }
-//
-//                                        @Override
-//                                        public void onCancelled(DatabaseError databaseError) {
-//
-//                                        }
-//                                    });
                                 }
                             }
 
@@ -736,18 +632,12 @@ public class MapsFragment extends Fragment implements
             inTrip = true;
             setOnTripStartedListener();
 
-            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-            if(user == null){
-                return;
-            }
-
-            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(Utils.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(dataSnapshot.exists()){
                         driverId = (String) dataSnapshot.getValue();
-                        FirebaseDatabase.getInstance().getReference().child("Order").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        FirebaseDatabase.getInstance().getReference().child("Order").child(Utils.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if(dataSnapshot.exists()) {
@@ -783,8 +673,6 @@ public class MapsFragment extends Fragment implements
                     blurView,currLocButton,etaOfCabTV,mHelpSMSButton,mHelpCallButton
             );
             showRatingDialog();
-        }else{
-            //do nothing
         }
     }
 
@@ -804,7 +692,7 @@ public class MapsFragment extends Fragment implements
 
     void showRatingDialog() {
         try {
-            ratingDialogFragment = new RatingDialog();
+            ratingDialogFragment = new RatingDialog(context);
             ratingDialogFragment.setCancelable(false);
             ratingDialogFragment.show(getChildFragmentManager(), "rating");
         } catch (Exception e) {
@@ -814,7 +702,7 @@ public class MapsFragment extends Fragment implements
 
     public void showDistanceNotSupportedDialog(){
         new MaterialDialog.Builder(getActivity()).title("Trip Too Long")
-                .content("We currently don't support journeys more than 20km out side NUST premises.")
+                .content("We currently don't support journeys more than 20km out side NUST H-12 premises.")
                 .titleColorRes(R.color.primary_dark)
                 .backgroundColor(Color.WHITE)
                 .positiveColorRes(R.color.primary)
@@ -822,33 +710,16 @@ public class MapsFragment extends Fragment implements
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        destinationMarker.setVisible(false);
-                        destinationBarCrossIB.setVisibility(View.GONE);
-                        destinationAddressAutoCompleteFragment.setText("");
-                        destinationAddressAutoCompleteFragment.setHint("Enter Destination");
-                        destinationEntered = false;
-                        if (!sourceEntered) {
-                            elevateSourceBar();
-                            makeDestinationBarBlank();
-                            turnMarkerIntoSetSourceMarker();
-                        } else {
-                            googleDirectionsApiWrapper.removePath();
-                            sourceEnteredHighLightDestinationBar();
-                            turnMarkerIntoSetDestinationMarker();
-                            animateRequestCabView(false);
-                        }
+                        makeDestinationBarEmpty();
                     }
                 })
                 .show();
     }
 
-
-
     void setupAllViews() {
         linkViews();
 
         setAllOnClickListeners();
-
 
         setOnPlaceSelectedListenerOnSourceBar();
         setOnPlaceSelectedListnerOnDestinationBar();
@@ -860,14 +731,11 @@ public class MapsFragment extends Fragment implements
         //Set Max Card Elevation for source and destination Address Cards
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             //ex. if ics is met then do this
-            searchDestinationCardView.setMaxCardElevation(getPixelsFromDPs(20));
-            searchSouceCardView.setMaxCardElevation(getPixelsFromDPs(20));
-            cabSelectionCV.setMaxCardElevation(getPixelsFromDPs(30));
-            cabSelectionCV.setCardElevation(getPixelsFromDPs(10));
-        }else{
-            //if api is not ics then do this
+            searchDestinationCardView.setMaxCardElevation(Utils.fromDpToPx(20f));
+            searchSouceCardView.setMaxCardElevation(Utils.fromDpToPx(20f));
+            cabSelectionCV.setMaxCardElevation(Utils.fromDpToPx(30f));
+            cabSelectionCV.setCardElevation(Utils.fromDpToPx(10f));
         }
-
     }
 
     /**
@@ -1005,7 +873,7 @@ public class MapsFragment extends Fragment implements
                             sourceAddressAutocCompleteFragment.setText(null);
                         }
                     },200);
-                    Toast.makeText(getActivity(),"Currently, pick up points can only be in premisis of nust",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(),"Currently, pick up points can only be in premisis of NUST H-12",Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -1015,15 +883,6 @@ public class MapsFragment extends Fragment implements
 
             }
         });
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if(ratingDialogFragment!=null) {
-            ratingDialogFragment.dismiss();
-            removeEventListeners();
-        }
     }
 
     void setOnPlaceSelectedListnerOnDestinationBar(){
@@ -1191,13 +1050,12 @@ public class MapsFragment extends Fragment implements
     }
 
     void setTripEndedListener(){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(Utils.getCurrUser() == null){return;}
 
-        if(user == null){
-            return;
-        }
-
-        FirebaseDatabase.getInstance().getReference().child("EndTrip").child(user.getUid()).addValueEventListener(tripEndedListener);
+        FirebaseDatabase.getInstance().getReference()
+                .child("EndTrip")
+                .child(Utils.getUid())
+                .addValueEventListener(tripEndedListener);
     }
 
     void setOnClickListenerOnRequestCabButton(){
@@ -1206,13 +1064,9 @@ public class MapsFragment extends Fragment implements
             public void onClick(View v) {
                 DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if(Utils.getCurrUser() == null){return;}
 
-                if(user == null){
-                    return;
-                }
-
-                mDatabase.child("Order").child(user.getUid()).setValue(new Order(
+                mDatabase.child("Order").child(Utils.getUid()).setValue(new Order(
                         sourceAddress,
                         destinationAddress,
                         String.valueOf(sourceLatLng.latitude),
@@ -1223,7 +1077,7 @@ public class MapsFragment extends Fragment implements
                         Utils.extractRequiredKey(System.currentTimeMillis())
                 ));
 
-                mDatabase.child("State").child(user.getUid()).setValue(Constants.FINDING_CAB_STATE);
+                mDatabase.child("State").child(Utils.getUid()).setValue(Constants.FINDING_CAB_STATE);
                 // move the souce and destination selection card view up
                 animateSourceDestinatonSelectionLayoutUp();
 
@@ -1238,22 +1092,15 @@ public class MapsFragment extends Fragment implements
     }
 
     void setOnAcceptCallListner(){
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if(user == null){
-            return;
-        }
+        if(Utils.getCurrUser() == null){return;}
 
         FirebaseDatabase.getInstance().getReference().
                 child("AcceptedOrders").
-                child(user.getUid()).
+                child(Utils.getUid()).
                 addValueEventListener(accepCallListener);
 
-        if(user == null){
-            return;
-        }
         //attach listener which server uses to notify if call has been cancelled and implement canceltripbutton logic here
-        FirebaseDatabase.getInstance().getReference().child("NotifyDriverAbsence").child(user.getUid()).
+        FirebaseDatabase.getInstance().getReference().child("NotifyDriverAbsence").child(Utils.getUid()).
                 addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -1262,9 +1109,8 @@ public class MapsFragment extends Fragment implements
 
                             if(!status){
                                 FirebaseDatabase.getInstance().getReference().child("NotifyDriverAbsence")
-                                        .child(user.getUid()).setValue(null);
-                                //cancellOrder
-                               // Toast.makeText(getActivity().getApplicationContext(),"No driver Available",Toast.LENGTH_LONG).show();
+                                        .child(Utils.getUid()).setValue(null);
+
                                 FirebaseDatabase.getInstance().getReference().removeEventListener(this);
                                 final AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.activity, R.style.MyAlertDialogStyle).create();
                                 alertDialog.setTitle("Alert");
@@ -1274,7 +1120,7 @@ public class MapsFragment extends Fragment implements
                                             public void onClick(DialogInterface dialog, int which) {
                                                 dialog.dismiss();
                                                 if(alertDialog!=null || alertDialog.isShowing()){
-                                                alertDialog.dismiss();
+                                                    alertDialog.dismiss();
                                                 }
                                                 cancellTrip();
                                             }
@@ -1293,23 +1139,21 @@ public class MapsFragment extends Fragment implements
     }
 
     void setOnCabArrivedListener(){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(Utils.getCurrUser() == null){return;}
 
-        if(user == null){
-            return;
-        }
-
-        FirebaseDatabase.getInstance().getReference().child("CabArrived").child(user.getUid()).addValueEventListener(cabArrivedListener);
+        FirebaseDatabase.getInstance().getReference()
+                .child("CabArrived")
+                .child(Utils.getUid())
+                .addValueEventListener(cabArrivedListener);
     }
 
     void setOnTripStartedListener(){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(Utils.getCurrUser() == null){return;}
 
-        if(user == null){
-            return;
-        }
-
-        FirebaseDatabase.getInstance().getReference().child("StartTrip").child(user.getUid()).addValueEventListener(tripStartedListener);
+        FirebaseDatabase.getInstance().getReference()
+                .child("StartTrip")
+                .child(Utils.getUid())
+                .addValueEventListener(tripStartedListener);
     }
 
     void showPathBetweenCabAndPassenger(LatLng currentCabLatLng,LatLng passengerLatLng){
@@ -1473,24 +1317,28 @@ public class MapsFragment extends Fragment implements
         destinationBarCrossIB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                animateCurrLocationButton = true;
-                destinationMarker.setVisible(false);
-                destinationBarCrossIB.setVisibility(View.GONE);
-                destinationAddressAutoCompleteFragment.setText("");
-                destinationAddressAutoCompleteFragment.setHint("Enter Destination");
-                destinationEntered = false;
-                if(!sourceEntered){
-                    elevateSourceBar();
-                    makeDestinationBarBlank();
-                    turnMarkerIntoSetSourceMarker();
-                }else{
-                    googleDirectionsApiWrapper.removePath();
-                    sourceEnteredHighLightDestinationBar();
-                    turnMarkerIntoSetDestinationMarker();
-                    animateRequestCabView(false);
-                }
+                makeDestinationBarEmpty();
             }
         });
+    }
+
+    void makeDestinationBarEmpty(){
+        animateCurrLocationButton = true;
+        destinationMarker.setVisible(false);
+        destinationBarCrossIB.setVisibility(View.GONE);
+        destinationAddressAutoCompleteFragment.setText("");
+        destinationAddressAutoCompleteFragment.setHint("Enter Destination");
+        destinationEntered = false;
+        if(!sourceEntered){
+            elevateSourceBar();
+            makeDestinationBarBlank();
+            turnMarkerIntoSetSourceMarker();
+        }else{
+            googleDirectionsApiWrapper.removePath();
+            sourceEnteredHighLightDestinationBar();
+            turnMarkerIntoSetDestinationMarker();
+            animateRequestCabView(false);
+        }
     }
 
     void setOnClickListenersOnCabTypeSelection(){
@@ -1689,7 +1537,7 @@ public class MapsFragment extends Fragment implements
                         }
                     });
                 }else{
-                    Toast.makeText(getActivity(),"Currently, pick up points can only be in premisis of nust",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(),"Currently, pick up points can only be in premisis of NUST H-12",Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -1755,7 +1603,7 @@ public class MapsFragment extends Fragment implements
     }
 
 
-    static void turnMarkerIntoSetSourceMarker(){
+    void turnMarkerIntoSetSourceMarker(){
         markerButton.setVisibility(View.VISIBLE);
         markerAtCenterOfMapIV.setVisibility(View.VISIBLE);
         markerButtonTextView.setText("SET SOURCE");
@@ -1767,30 +1615,30 @@ public class MapsFragment extends Fragment implements
     }
 
 
-    static void makeDestinationBarBlank(){
+    void makeDestinationBarBlank(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            searchDestinationCardView.setCardElevation(getPixelsFromDPs((float) 1));
+            searchDestinationCardView.setCardElevation(Utils.fromDpToPx(1f));
         }
         searchDestinationCardView.setCardBackgroundColor(Color.parseColor("#aaffffff"));
     }
 
-    static void elevateSourceBar(){
+    void elevateSourceBar(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             searchSouceCardView.setCardBackgroundColor(Color.parseColor("#ffffff"));
         }
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            searchSouceCardView.setCardElevation(getPixelsFromDPs((6)));
+            searchSouceCardView.setCardElevation(Utils.fromDpToPx(6f));
         }
     }
 
     void makeDestinationBarBlue(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            searchDestinationCardView.setCardElevation(getPixelsFromDPs((float) 1));
+            searchDestinationCardView.setCardElevation(Utils.fromDpToPx(1f));
         }
         searchDestinationCardView.setCardBackgroundColor(Color.parseColor("#cc426E86"));
     }
 
-    static void animateRequestCabView(boolean up){
+    void animateRequestCabView(boolean up){
         if(up){
             Animations.makeVisible(requestCabButton,fairQuoteTV);
             Animations.playYoYoAnimOnMultipleViews(Techniques.SlideInUp,1000,requestCabButton,fairQuoteTV);
@@ -1830,7 +1678,7 @@ public class MapsFragment extends Fragment implements
         markerAtCenterOfMapIV.setVisibility(View.INVISIBLE);
     }
 
-    static void turnMarkerIntoSetDestinationMarker(){
+    void turnMarkerIntoSetDestinationMarker(){
         markerButton.setVisibility(View.VISIBLE);
         markerAtCenterOfMapIV.setVisibility(View.VISIBLE);
         markerButtonTextView.setText("SET DESTINATION");
@@ -1841,30 +1689,23 @@ public class MapsFragment extends Fragment implements
         }
     }
 
-    static void sourceEnteredHighLightDestinationBar(){
+    void sourceEnteredHighLightDestinationBar(){
         makeSourceBarGreen();
         elevateDestinationBar();
     }
 
-    static void makeSourceBarGreen(){
+    void makeSourceBarGreen(){
         searchSouceCardView.setCardBackgroundColor(Color.parseColor("#ccF9BA32"));
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            searchSouceCardView.setCardElevation(getPixelsFromDPs(1));
+            searchSouceCardView.setCardElevation(Utils.fromDpToPx(1f));
         }
     }
 
-    static void elevateDestinationBar(){
+    void elevateDestinationBar(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            searchDestinationCardView.setCardElevation(getPixelsFromDPs((float) 6));
+            searchDestinationCardView.setCardElevation(Utils.fromDpToPx(6f));
         }
         searchDestinationCardView.setCardBackgroundColor(Color.parseColor("#ffffff"));
-    }
-
-    protected static int getPixelsFromDPs(float dps){
-        Resources r = context.getResources();
-        int  px = (int) (TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, dps, r.getDisplayMetrics()));
-        return px;
     }
 
     void animateSelectionToast(String message) {
@@ -1989,34 +1830,26 @@ public class MapsFragment extends Fragment implements
         acceptCallDriverLocationListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(driverIsArriving) {
-                    if (dataSnapshot.exists()) {
-                        Log.v("DriverLocation:::: ", "datasnapshot exists.");
+                if(dataSnapshot.exists()) {
 
+                    if (Utils.getCurrUser() == null) {return;}
+
+                    if (driverIsArriving) {
                         if (!cabFoundScreenHadBeenShown) {
                             removeFindingCabScreen();
                             cabFoundScreenHadBeenShown = true;
                         }
                         HashMap cabLatLngHashMap = (HashMap) dataSnapshot.getValue();
-                        if(cabLatLngHashMap!=null) {
+                        if (cabLatLngHashMap != null) {
                             if (cabLatLngHashMap.get("Lat") != null && cabLatLngHashMap.get("Long") != null) {
                                 double cabLat = Double.valueOf((String) cabLatLngHashMap.get("Lat"));
                                 double cabLong = Double.valueOf((String) cabLatLngHashMap.get("Long"));
                                 cabLatLng = new LatLng(cabLat, cabLong);
+
                                 animateToCabsPositon(cabLatLng);
-                                if (cabLatLng != null) {
-                                    Log.v("CabLatLng:", "" + cabLatLng.latitude + " " + cabLatLng.longitude);
-                                } else {
-                                    Log.v("CabLatLng:", " NULL");
-                                }
+
                                 if (!sourceLatLngRetrieved) {
-                                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                                    if(user == null){
-
-                                    }
-
-                                    FirebaseDatabase.getInstance().getReference().child("Order").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    FirebaseDatabase.getInstance().getReference().child("Order").child(Utils.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             if (dataSnapshot.exists()) {
@@ -2041,7 +1874,7 @@ public class MapsFragment extends Fragment implements
                                         }
                                     });
 
-                                    FirebaseDatabase.getInstance().getReference().child("Order").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    FirebaseDatabase.getInstance().getReference().child("Order").child(Utils.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             if (dataSnapshot.exists()) {
@@ -2081,88 +1914,82 @@ public class MapsFragment extends Fragment implements
                                 }
                             }
                         }
-                    } else {
-                        Log.v("DriverLocation:::: ", "datasnapshot doesn't exist.");
-                    }
-                } else if( inTrip ){
-                    HashMap cabLatLngHashMap = (HashMap) dataSnapshot.getValue();
-                    if(cabLatLngHashMap!=null) {
-                        if(cabLatLngHashMap.get("Lat")!=null&&cabLatLngHashMap.get("Long")!=null) {
-                            double cabLat = Double.valueOf((String) cabLatLngHashMap.get("Lat"));
-                            double cabLong = Double.valueOf((String) cabLatLngHashMap.get("Long"));
-                            cabLatLng = new LatLng(cabLat, cabLong);
+                    } else if (inTrip) {
+                        HashMap cabLatLngHashMap = (HashMap) dataSnapshot.getValue();
+                        if (cabLatLngHashMap != null) {
+                            if (cabLatLngHashMap.get("Lat") != null && cabLatLngHashMap.get("Long") != null) {
+                                double cabLat = Double.valueOf((String) cabLatLngHashMap.get("Lat"));
+                                double cabLong = Double.valueOf((String) cabLatLngHashMap.get("Long"));
+                                cabLatLng = new LatLng(cabLat, cabLong);
 
-                            mTripPathData = new ArrayList<LatLng>();
+                                mTripPathData = new ArrayList<LatLng>();
 
-                            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                FirebaseDatabase.getInstance().getReference().child("TripPath").child(Utils.getUid() + driverId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            if (dataSnapshot.hasChildren()) {
+                                                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                                    DriverLocation location = snapshot.getValue(DriverLocation.class);
+                                                    LatLng latLng = new LatLng(
+                                                            Double.valueOf(location.Lat),
+                                                            Double.valueOf(location.Long)
+                                                    );
+                                                    mTripPathData.add(latLng);
+                                                }
+                                                final int distanceCoveredInMeters = Utils.getDistanceInMetersFromLatLngData(mTripPathData);
+                                                FirebaseDatabase.getInstance().getReference().child("StartTripTime").child(Utils.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        long startTime = (Long) dataSnapshot.getValue();
+                                                        long currTime = System.currentTimeMillis();
+                                                        long timePassed = currTime - startTime;
+                                                        long timePassedSeconds = timePassed / 1000;
+                                                        fairCalculation.setCabType(currentCabSelection);
+                                                        int fairEstimate = fairCalculation.getFairEstimate(distanceCoveredInMeters, Integer.valueOf(Long.toString(timePassedSeconds)));
+                                                        int distanceInKm = distanceCoveredInMeters / 1000;
+                                                        int timeInMinutes = Integer.valueOf(Long.toString(timePassedSeconds)) / 60;
+                                                        if (activateFairEstimation) {
+                                                            etaOfCabTV.setText(
+                                                                    "" + distanceInKm + "km has been covered in " + timeInMinutes + "minute, "
+                                                                            + "the current fair estimate is " + fairEstimate + "PKR"
+                                                            );
+                                                        }
 
-                            if(user == null){
-                                return;
-                            }
+                                                        googleDirectionsApiWrapper.removePath();
+                                                        googleDirectionsApiWrapper.animateMapToShowFullPath(false).
+                                                                setEtaTV(null).
+                                                                from(cabLatLng).
+                                                                to(destinationLatLng).
+                                                                retreiveDirections().
+                                                                setMap(mMap).
+                                                                drawPathOnMap();
 
-                            FirebaseDatabase.getInstance().getReference().child("TripPath").child(user.getUid() + driverId).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot.exists()) {
-                                        if (dataSnapshot.hasChildren()) {
-                                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                                DriverLocation location = snapshot.getValue(DriverLocation.class);
-                                                LatLng latLng = new LatLng(
-                                                        Double.valueOf(location.Lat),
-                                                        Double.valueOf(location.Long)
-                                                );
-                                                mTripPathData.add(latLng);
-                                            }
-                                            final int distanceCoveredInMeters = Utils.getDistanceInMetersFromLatLngData(mTripPathData);
-                                            FirebaseDatabase.getInstance().getReference().child("StartTripTime").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    long startTime = (Long) dataSnapshot.getValue();
-                                                    long currTime = System.currentTimeMillis();
-                                                    long timePassed = currTime - startTime;
-                                                    long timePassedSeconds = timePassed / 1000;
-                                                    fairCalculation.setCabType(currentCabSelection);
-                                                    int fairEstimate = fairCalculation.getFairEstimate(distanceCoveredInMeters, Integer.valueOf(Long.toString(timePassedSeconds)));
-                                                    int distanceInKm = distanceCoveredInMeters / 1000;
-                                                    int timeInMinutes = Integer.valueOf(Long.toString(timePassedSeconds)) / 60;
-                                                    if (activateFairEstimation) {
-                                                        etaOfCabTV.setText(
-                                                                "" + distanceInKm + "km has been covered in " + timeInMinutes + "minute, "
-                                                                        + "the current fair estimate is " + fairEstimate + "PKR"
-                                                        );
+                                                        cabMarker.setPosition(cabLatLng);
+                                                        cabMarker.hideInfoWindow();
+
                                                     }
 
-                                                    googleDirectionsApiWrapper.removePath();
-                                                    googleDirectionsApiWrapper.animateMapToShowFullPath(false).
-                                                            setEtaTV(null).
-                                                            from(cabLatLng).
-                                                            to(destinationLatLng).
-                                                            retreiveDirections().
-                                                            setMap(mMap).
-                                                            drawPathOnMap();
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
 
-                                                    cabMarker.setPosition(cabLatLng);
-                                                    cabMarker.hideInfoWindow();
+                                                    }
+                                                });
+                                            }
 
-                                                }
-
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                }
-                                            });
                                         }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
 
                                     }
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
+                                });
+                            }
                         }
                     }
+                } else {
+                    Log.v("DriverLocation:::: ", "datasnapshot doesn't exist.");
                 }
             }
 
@@ -2174,18 +2001,14 @@ public class MapsFragment extends Fragment implements
         return  accepCallListener;
     }
     private ValueEventListener defineTripEndedListener(){
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if(user == null){
-            return null;
-        }
+        if(Utils.getCurrUser() == null){return null;}
 
         tripEndedListener=new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     if(getActivity()!=null) {
-                        FirebaseDatabase.getInstance().getReference().child("EndTrip").child(user.getUid()).setValue(null);
+                        FirebaseDatabase.getInstance().getReference().child("EndTrip").child(Utils.getUid()).setValue(null);
                         removeEventListeners();
                         Log.v(TAG, " showing rating dialog");
                         showRatingDialog();
@@ -2203,11 +2026,7 @@ public class MapsFragment extends Fragment implements
     }
 
     private ValueEventListener defineCabArrivedListener(){
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if(user == null){
-            return null;
-        }
+        if(Utils.getCurrUser() == null){return null;}
 
         cabArrivedListener=new ValueEventListener() {
             @Override
@@ -2215,7 +2034,7 @@ public class MapsFragment extends Fragment implements
                 Log.v("CabArrived", " Inside on cab arrived listener");
                 if(dataSnapshot.exists()) {
                     final Order order = dataSnapshot.getValue(Order.class);
-                    FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(Utils.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if(dataSnapshot.exists()){
@@ -2349,47 +2168,39 @@ public class MapsFragment extends Fragment implements
                     removeEventListener(acceptCallDriverLocationListener);
         }
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(Utils.getCurrUser() == null){return;}
 
-        if(user == null){
-            Log.v(TAG," user is null ");
-            return;
-        }
-
-        if(user.getUid()!=null) {
-            FirebaseDatabase.getInstance().getReference().child("CabArrived").child(user.getUid()).
+        if(Utils.getUid()!=null) {
+            FirebaseDatabase.getInstance().getReference().child("CabArrived").child(Utils.getUid()).
                     removeEventListener(cabArrivedListener);
-            FirebaseDatabase.getInstance().getReference().child("StartTrip").child(user.getUid()).
+            FirebaseDatabase.getInstance().getReference().child("StartTrip").child(Utils.getUid()).
                     removeEventListener(tripStartedListener);
             FirebaseDatabase.getInstance().getReference().
                     child("AcceptedOrders").
-                    child(user.getUid()).
+                    child(Utils.getUid()).
                     removeEventListener(accepCallListener);
-            FirebaseDatabase.getInstance().getReference().child("EndTrip").child(user.getUid()).
+            FirebaseDatabase.getInstance().getReference().child("EndTrip").child(Utils.getUid()).
                     removeEventListener(tripEndedListener);
         }
 
 
     }
     public void cancellTrip(){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(Utils.getCurrUser() == null){return;}
 
-        if(user == null){
-            return;
-        }
-
-        if(user.getUid()!=null) {
-            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).setValue(null);
-        }
+        FirebaseDatabase.getInstance().getReference()
+                .child("AcceptedOrders")
+                .child(Utils.getUid())
+                .setValue(null);
 
         if(driverId!=null) {
             FirebaseDatabase.getInstance().getReference().
                     child("CanceledTripsServer").
-                    child(user.getUid()).
+                    child(Utils.getUid()).
                     setValue(driverId);
             FirebaseDatabase.getInstance().getReference().
                     child("CanceledTripsDriver").
-                    child(user.getUid()).
+                    child(Utils.getUid()).
                     setValue(driverId);
             FirebaseDatabase.getInstance().getReference().child("DriverState").
                     child(driverId).
@@ -2397,16 +2208,16 @@ public class MapsFragment extends Fragment implements
         }else{
             FirebaseDatabase.getInstance().getReference().
                     child("CanceledTripsServer").
-                    child(user.getUid()).
+                    child(Utils.getUid()).
                     setValue("null");
             FirebaseDatabase.getInstance().getReference().
                     child("CanceledTripsDriver").
-                    child(user.getUid()).
+                    child(Utils.getUid()).
                     setValue("null");
 
         }
         FirebaseDatabase.getInstance().getReference().
-                child("State").child(user.getUid()).setValue(Constants.SET_SOURCE_STATE);
+                child("State").child(Utils.getUid()).setValue(Constants.SET_SOURCE_STATE);
         //1)find driver state 2)if app open don't do anything else send notification
         if(driverId!=null) {
             FirebaseDatabase.getInstance().getReference().child("AppStatus").child(driverId)
@@ -2450,126 +2261,4 @@ public class MapsFragment extends Fragment implements
         getActivity().finish();
         startActivity(intent);
     }
-
-    public static class RatingDialog extends DialogFragment {
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.MyRatingDialogTheme);
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-
-            View rootView = inflater.inflate(R.layout.dialog_rating, null);
-
-            // Inflate and set the layout for the dialog
-            // Pass null as the parent view because its going in the dialog layout
-            builder.setView(rootView);
-
-            final RatingBar ratingBar = (RatingBar) rootView.findViewById(R.id.driver_rating_bar);
-            ImageView driverProfileIV = (ImageView) rootView.findViewById(R.id.driver_image_view);
-            final TextView finalFairTextView = (TextView) rootView.findViewById(R.id.final_fair_tv);
-
-            final TextView ratingPromptTV = (TextView) rootView.findViewById(R.id.rating_prompt_tv);
-
-            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-            if(user!=null) {
-                FirebaseDatabase.getInstance().getReference().child("FairEstimate").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()){
-                            finalFairTextView.setText(""+((Long)dataSnapshot.getValue()));
-                        }else{
-                            finalFairTextView.setText(""+50);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-            }
-
-            FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.exists()){
-                        String driverId = (String) dataSnapshot.getValue();
-
-                        FirebaseDatabase.getInstance().getReference().child("Users").child(driverId).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                User driver = dataSnapshot.getValue(User.class);
-                                ratingPromptTV.setText("How much do you rate "+driver.name+"?");
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    final float rating = ratingBar.getRating();
-                    FirebaseDatabase.getInstance().getReference().child("AcceptedOrders").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if(dataSnapshot.exists()){
-
-
-
-                                String driverId = (String) dataSnapshot.getValue();
-
-                                HashMap<String,Object> ratingData = new HashMap<String, Object>();
-                                ratingData.put("customerKey",user.getUid());
-                                ratingData.put("rating",rating);
-
-                                FirebaseDatabase.getInstance().getReference().
-                                        child("DriverRating").
-                                        child(driverId).
-                                        push().
-                                        setValue(ratingData);
-
-                                FirebaseDatabase.getInstance().
-                                        getReference().
-                                        child("State").
-                                        child(user.getUid()).
-                                        setValue(1);
-
-                                FirebaseDatabase.getInstance().
-                                        getReference().
-                                        child("AcceptedOrders").
-                                        child(user.getUid()).
-                                        setValue(null);
-
-
-
-                                Intent intent = new Intent(context, MapsActivity.class);
-                                MapsActivity.activity.finish();
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                MapsActivity.activity.startActivity(intent);
-                                ratingDialogFragment.dismiss();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-            });
-            return builder.create();
-        }
-    }
-
 }

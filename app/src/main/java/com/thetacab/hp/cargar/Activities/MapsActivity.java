@@ -1,36 +1,16 @@
 package com.thetacab.hp.cargar.Activities;
 
-import android.Manifest;
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.CardView;
-import android.telephony.SmsManager;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,7 +26,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -55,10 +34,7 @@ import com.thetacab.hp.cargar.Constants;
 import com.thetacab.hp.cargar.OfflineFragment;
 import com.thetacab.hp.cargar.R;
 import com.thetacab.hp.cargar.User;
-import com.wang.avi.AVLoadingIndicatorView;
-
-import butterknife.ButterKnife;
-import butterknife.InjectView;
+import com.thetacab.hp.cargar.Utils;
 
 public class MapsActivity
         extends FragmentActivity
@@ -67,13 +43,8 @@ public class MapsActivity
     private static final String TAG = "MapActivity";
 
     public static MapsActivity activity;
-    FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private static final int CONTENT_VIEW_ID = 10101010;
-
 
     ImageButton mOpenDrawerButton;
-
 
     @Override
     protected void onStart() {
@@ -95,7 +66,6 @@ public class MapsActivity
         mOpenDrawerButton = (ImageButton) findViewById(R.id.open_nav_drawer);
         activity = this;
         FirebaseMessaging.getInstance().subscribeToTopic("notif");
-        setupFirebaseAuthentication();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -150,38 +120,16 @@ public class MapsActivity
         return (int)(getResources().getDisplayMetrics().density*dps);
     }
 
-    void setupFirebaseAuthentication() {
-        mAuth = FirebaseAuth.getInstance();
-
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-
-                    Intent intent = new Intent(getApplicationContext(), StartupActivity.class);
-                    startActivity(intent);
-                }
-                // ...
-            }
-        };
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("UID-SharedPref",0);
-        String uId = sharedPref.getString("UID",null);
-        if(uId!=null) {
-            FirebaseDatabase.getInstance().getReference().child("AppStatus").child(uId).setValue(0);
+        if(Utils.getCurrUser()!=null) {
+            FirebaseDatabase.getInstance()
+                    .getReference()
+                    .child("AppStatus")
+                    .child(Utils.getUid())
+                    .setValue(0);
         }
-
-
     }
 
     void setOnClickListenerOnOpenDrawerButton(){
